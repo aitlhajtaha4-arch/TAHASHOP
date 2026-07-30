@@ -54,9 +54,9 @@ export default function Testimonials() {
     <>
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
-            <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">شهادات مميزة</span>
-            <h2 className="mb-4 text-3xl font-black tracking-tight sm:text-4xl">تجارب <span className="text-accent-gradient">عملائنا</span></h2>
+          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }} className="mb-8 sm:mb-10 text-center">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">تجارب عملائنا</h2>
+            <p className="mt-1 text-[13px] text-text-muted">ماذا يقولون عنا</p>
           </motion.div>
 
           <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border bg-surface p-8 sm:p-12">

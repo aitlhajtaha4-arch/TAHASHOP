@@ -26,7 +26,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
   const brand = allBrands.find((b) => b.name.toLowerCase() === brandName.toLowerCase());
   const brandProducts = allProducts.filter((p) => p.brand.toLowerCase() === brandName.toLowerCase());
 
-  if (!brand || brandProducts.length === 0) {
+  if (!brand) {
     notFound();
   }
 

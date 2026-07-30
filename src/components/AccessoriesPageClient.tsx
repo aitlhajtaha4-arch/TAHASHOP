@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Headphones, ShoppingCart, ArrowRight } from "lucide-react";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { accessoryCategories, accessoryCategoryMap, type Accessory } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -44,15 +44,11 @@ export default function AccessoriesPageClient({ accessories }: { accessories: Ac
               العودة للمتجر
             </Link>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-              <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
-                <Headphones className="h-4 w-4" />
-                جميع الإكسسوارات
-              </span>
-              <h1 className="mb-3 text-3xl font-black tracking-tight sm:text-4xl">
-                إكسسوارات <span className="text-accent-gradient">الهواتف</span>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
+              <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+                إكسسوارات الهواتف
               </h1>
-              <p className="text-text-muted text-sm">اكتشف أفضل الإكسسوارات لحماية وتحسين تجربتك مع هاتفك</p>
+              <p className="mt-1 text-[13px] text-text-muted">اكتشف أفضل الإكسسوارات لحماية هاتفك وتحسين تجربتك</p>
             </motion.div>
           </div>
 

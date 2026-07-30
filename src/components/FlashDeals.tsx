@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
 import { flashDeals as defaultFlashDeals, type FlashDeal } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
@@ -58,14 +57,10 @@ export default function FlashDeals({ deals }: { deals?: FlashDeal[] }) {
           viewport={{ once: true }}
           className="mb-12 text-center"
         >
-          <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500">
-            <Zap className="h-4 w-4 fill-current" />
-            عروض محدودة
-          </span>
-          <h2 className="mb-4 text-3xl font-black tracking-tight sm:text-4xl">
-            عروض <span className="text-accent-gradient">الوميض</span>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            عروض الوميض
           </h2>
-          <p className="text-text-muted">خصومات حصرية تنتهي قريباً!</p>
+          <p className="mt-1 text-[13px] text-text-muted">خصومات حصرية تنتهي قريباً</p>
         </motion.div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

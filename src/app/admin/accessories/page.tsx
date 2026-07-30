@@ -91,7 +91,7 @@ export default function AdminAccessories() {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-initial">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث..." className="w-full sm:w-48 rounded-xl border border-border bg-surface py-2.5 pr-9 pl-3 text-sm text-foreground focus:border-primary focus:outline-none" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث..." className="w-full sm:w-48 rounded-xl border border-border bg-surface py-2.5 pr-9 pl-3 text-sm text-foreground focus:border-primary focus:outline-none" />
           </div>
           <button onClick={() => { setEditingId(null); setForm(defaultAccessory); setShowForm(true); }} className="flex items-center gap-2 rounded-xl accent-gradient px-4 py-2.5 text-xs font-bold text-white whitespace-nowrap">
             <Plus className="h-4 w-4" />

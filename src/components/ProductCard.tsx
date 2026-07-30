@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Star, ShoppingCart, Truck, Heart } from "lucide-react";
+import { Star, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import type { Product } from "@/data/products";
 
@@ -19,8 +19,8 @@ const colorMap: Record<string, string> = {
   "تيتانيوم طبيعي": "#8b7355", "التيتانيوم أسود": "#292524",
   "تيتانيوم أسود": "#292524", "التيتانيوم أبيض": "#f5f5f4",
   "تيتانيوم أبيض": "#f5f5f4", "التيتانيوم صحراوي": "#d4a574",
-  "تيتانيوم صحراوي": "#d4a574",   "التيتانيوم أزرق": "#334155",
-  "تيتانيوم أزرق": "#334155", "النатурالي": "#8b7355",
+  "تيتانيوم صحراوي": "#d4a574",  "التيتانيوم أزرق": "#334155",
+  "تيتانيوم أزرق": "#334155", "النaturالي": "#8b7355",
   "ال_midnight": "#191970", "الخزفي": "#d4c5a9",
   "البيج": "#f5f0e1", "وردي": "#ec4899",
 };
@@ -39,7 +39,7 @@ function Stars({ rating, reviews }: { rating: number; reviews: number }) {
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
             key={i}
-            className={`h-3.5 w-3.5 ${
+            className={`h-3 w-3 ${
               i <= Math.round(rating)
                 ? "fill-amber-400 text-amber-400"
                 : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"
@@ -47,7 +47,7 @@ function Stars({ rating, reviews }: { rating: number; reviews: number }) {
           />
         ))}
       </div>
-      <span className="text-xs text-text-muted">({reviews.toLocaleString()})</span>
+      <span className="text-[10px] text-text-muted">({reviews})</span>
     </div>
   );
 }
@@ -58,140 +58,86 @@ export default function ProductCard({ product, index }: { product: Product; inde
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
 
-  const conditionColors: Record<string, string> = {
-    "جديد": "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    "مستعمل": "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    "مجدد": "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  };
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: index * 0.05, duration: 0.5 }}
-      className="group relative overflow-hidden rounded-2xl border border-border bg-surface card-hover"
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ delay: index * 0.03, duration: 0.4 }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-surface card-hover"
     >
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5">
+      <div className="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1">
         {product.badge && (
-          <span className="accent-gradient rounded-full px-2.5 py-1 text-[10px] font-bold text-white shadow-lg">
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-semibold text-primary">
             {product.badge}
-          </span>
-        )}
-        {product.condition !== "جديد" && (
-          <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${conditionColors[product.condition]}`}>
-            {product.condition}
           </span>
         )}
       </div>
 
-      <button className="absolute top-3 left-3 z-10 rounded-full bg-background/80 p-2 text-text-muted backdrop-blur-sm opacity-0 transition-all duration-500 hover:bg-background hover:text-red-500 group-hover:opacity-100">
-        <Heart className="h-4 w-4" />
-      </button>
-
-      <Link href={`/product/${product.id}`} className="block relative overflow-hidden bg-surface-dark p-6">
-        <div className="shimmer-bg absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <Link href={`/product/${product.id}`} className="block bg-surface-dark/50 p-4 sm:p-5">
         <img
           src={product.image}
           alt={product.name}
-          className="relative mx-auto h-44 sm:h-52 w-auto rounded-xl object-cover transition-transform duration-700 group-hover:scale-110"
+          className="mx-auto h-32 sm:h-40 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
       </Link>
 
-      <div className="p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-            {product.brand}
-          </p>
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${conditionColors[product.condition]}`}>
-            {product.condition}
-          </span>
-        </div>
+      <div className="flex flex-col flex-1 p-3 sm:p-4">
+        <p className="text-[10px] font-semibold text-primary/70 tracking-wide uppercase mb-0.5">
+          {product.brand}
+        </p>
+
         <Link href={`/product/${product.id}`}>
-          <h3 className="mb-2 text-sm font-bold text-foreground line-clamp-1 hover:text-primary transition-colors">{product.name}</h3>
+          <h3 className="text-sm font-medium text-foreground line-clamp-1 hover:text-primary transition-colors mb-1.5">
+            {product.name}
+          </h3>
         </Link>
 
         <Stars rating={product.rating} reviews={product.reviews} />
 
-        <div className="mt-3 grid grid-cols-2 gap-1.5">
+        <div className="mt-2.5 grid grid-cols-2 gap-1">
           {[
             { label: "التخزين", value: product.storage },
-            { label: "الذاكرة", value: product.ram },
-            { label: "الكاميرا", value: product.camera.split("+")[0].trim() },
-            { label: "البطارية", value: product.battery },
+            { label: "الرام", value: product.ram },
           ].map((spec) => (
-            <div key={spec.label} className="rounded-lg bg-surface-dark px-2 py-1.5">
+            <div key={spec.label} className="rounded-lg bg-surface-dark/70 px-2 py-1">
               <span className="block text-[9px] text-text-muted">{spec.label}</span>
-              <span className="block truncate text-[10px] font-semibold text-foreground">
-                {spec.value}
-              </span>
+              <span className="block text-[10px] font-medium text-foreground">{spec.value}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          {product.colors.slice(0, 5).map((color, i) => (
+        <div className="mt-2.5 flex items-center gap-1.5">
+          {product.colors.slice(0, 4).map((color, i) => (
             <span
               key={i}
-              className="group/swatch relative inline-flex"
-            >
-              <span
-                className="h-5 w-5 rounded-full border-2 border-background shadow-sm transition-transform hover:scale-125 cursor-pointer"
-                style={{ backgroundColor: getColorCode(color) }}
-              />
-              <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[9px] font-medium text-background opacity-0 transition-opacity group-hover/swatch:opacity-100 shadow-lg">
-                {color}
-              </span>
-            </span>
+              className="inline-block h-4 w-4 rounded-full border border-border/40 shadow-sm"
+              style={{ backgroundColor: getColorCode(color) }}
+              title={color}
+            />
           ))}
-          {product.colors.length > 5 && (
-            <span className="inline-flex h-5 items-center rounded-full bg-surface-dark px-1.5 text-[9px] font-medium text-text-muted">
-              +{product.colors.length - 5}
-            </span>
+          {product.colors.length > 4 && (
+            <span className="text-[9px] text-text-muted">+{product.colors.length - 4}</span>
           )}
         </div>
 
-        <div className="mt-4 flex items-end gap-2">
-          <span className="text-xl font-black text-primary">
-            {product.price.toLocaleString()} <span className="text-sm font-bold">درهم</span>
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-base font-semibold text-foreground">
+            {product.price.toLocaleString()} <span className="text-[10px] font-normal text-text-muted">درهم</span>
           </span>
           {product.originalPrice && (
-            <span className="mb-0.5 text-xs text-text-muted line-through">
-              {product.originalPrice.toLocaleString()} درهم
-            </span>
-          )}
-          {discount > 0 && (
-            <span className="mb-0.5 rounded-md bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
-              -{discount}%
+            <span className="text-[11px] text-text-muted line-through">
+              {product.originalPrice.toLocaleString()}
             </span>
           )}
         </div>
 
-        {product.monthlyPayment && (
-          <p className="mt-1 text-[10px] text-text-muted">
-            أو {product.monthlyPayment.toLocaleString()} درهم/شهر
-          </p>
+        {discount > 0 && (
+          <span className="mt-1 text-[10px] font-medium text-red-500">-{discount}%</span>
         )}
 
-        <div className="mt-2 flex items-center gap-2">
-          {product.freeShipping && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400">
-              <Truck className="h-3 w-3" /> توصيل مجاني
-            </span>
-          )}
-          <span
-            className={`text-[10px] ${
-              product.available
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-500"
-            }`}
-          >
-            {product.available ? "متوفر" : "نفذ"}
-          </span>
-        </div>
-
-        <div className="mt-4 flex gap-2">
+        <div className="mt-3 flex gap-1.5">
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -205,14 +151,14 @@ export default function ProductCard({ product, index }: { product: Product; inde
                 storage: product.storage,
               });
             }}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl accent-gradient py-2.5 text-xs font-bold text-white transition-all duration-500 hover:shadow-lg hover:shadow-primary/25"
+            className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-primary py-2 text-[11px] font-medium text-white transition-all duration-200 hover:bg-primary-dark active:scale-[0.97]"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
-            أضف للسلة
+            أضف
           </button>
           <Link
             href={`/product/${product.id}`}
-            className="flex items-center justify-center rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-bold text-primary transition-all duration-500 hover:bg-primary hover:text-white"
+            className="flex items-center justify-center rounded-xl border border-border/60 px-3 py-2 text-[11px] font-medium text-foreground transition-all duration-200 hover:bg-surface-dark active:scale-[0.97]"
           >
             التفاصيل
           </Link>

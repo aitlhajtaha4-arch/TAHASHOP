@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Headphones, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import type { Accessory } from "@/data/products";
 import { accessoryCategoryMap } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -23,14 +23,10 @@ export default function AccessoriesSection({ accessories }: { accessories: Acces
           viewport={{ once: true }}
           className="mb-12 text-center"
         >
-          <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
-            <Headphones className="h-4 w-4" />
-            إكسسوارات
-          </span>
-          <h2 className="mb-4 text-3xl font-black tracking-tight sm:text-4xl">
-            إكسسوارات <span className="text-accent-gradient">مميزة</span>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            إكسسوارات مميزة
           </h2>
-          <p className="text-text-muted">اكمل تجربتك مع أفضل الإكسسوارات</p>
+          <p className="mt-1 text-[13px] text-text-muted">اكمل تجربتك مع أفضل الإكسسوارات</p>
         </motion.div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

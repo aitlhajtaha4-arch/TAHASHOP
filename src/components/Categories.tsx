@@ -2,71 +2,105 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { brands } from "@/data/products";
+import { brands, type Brand } from "@/data/products";
+import { useRef, useState, useCallback } from "react";
 
-function BrandLogo({ logo, name }: { logo: string; name: string }) {
+function RippleButton({ brand }: { brand: Brand }) {
+  const btnRef = useRef<HTMLAnchorElement>(null);
+  const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, { x, y, id }]);
+    setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 600);
+  }, []);
+
   return (
-    <img
-      src={logo}
-      alt={name}
-      className="mx-auto h-10 w-20 object-contain transition-transform duration-500 group-hover:scale-110"
-    />
+    <Link
+      ref={btnRef}
+      href={`/brands/${encodeURIComponent(brand.name)}`}
+      aria-label={brand.name}
+      onClick={handleClick}
+      className="group relative flex flex-col items-center justify-center rounded-xl border border-border/50 bg-surface px-3 py-3 sm:py-4 text-center transition-all duration-300 ease-out hover:scale-[1.04] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/25 hover:-translate-y-0.5 active:scale-[0.97] overflow-hidden"
+    >
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          className="absolute pointer-events-none rounded-full bg-primary/15 animate-ripple"
+          style={{ left: r.x - 12, top: r.y - 12, width: 24, height: 24 }}
+        />
+      ))}
+      <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5">
+        <img
+          src={brand.logo}
+          alt={brand.name}
+          className="h-full w-full object-contain"
+          loading="lazy"
+        />
+      </div>
+      <span className="text-[11px] sm:text-xs font-medium text-foreground/80 leading-tight">
+        {brand.name === "Google Pixel" ? "Pixel" : brand.name}
+      </span>
+    </Link>
   );
 }
 
 export default function Categories() {
   return (
-    <section id="brands" className="py-16 sm:py-20 bg-surface/50">
+    <section id="brands" className="py-10 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-10 sm:mb-12 text-center"
+          transition={{ duration: 0.4 }}
+          className="mb-8 text-center"
         >
-          <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">
-            العلامات التجارية
-          </span>
-          <h2 className="mb-4 text-2xl sm:text-3xl font-black tracking-tight sm:text-4xl">
-            تصفح حسب <span className="text-accent-gradient">العلامة التجارية</span>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            تسوق حسب القسم
           </h2>
+          <p className="mt-1 text-[13px] text-text-muted">
+            اختر من بين {brands.length} علامة تجارية أو تصفح الإكسسوارات
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-9">
           {brands.map((brand, i) => (
             <motion.div
               key={brand.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.03 }}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ duration: 0.3, delay: i * 0.02 }}
             >
-              <Link
-                href={`/brands/${encodeURIComponent(brand.name)}`}
-                prefetch={true}
-                className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface p-4 text-center transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 block"
-                style={{ aspectRatio: "1 / 1" }}
-              >
-                <div className="mb-2 flex flex-1 items-center justify-center">
-                  <BrandLogo logo={brand.logo} name={brand.name} />
-                </div>
-                <h3 className="text-[10px] sm:text-xs font-bold text-foreground leading-tight">{brand.name}</h3>
-
-                <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-primary to-accent-purple transition-all duration-500 group-hover:w-full" />
-
-                <div className="absolute inset-0 z-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none">
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: "linear-gradient(110deg, transparent 30%, rgba(37, 99, 235, 0.08) 50%, transparent 70%)",
-                      backgroundSize: "300% 100%",
-                      animation: "shimmer 2s infinite linear",
-                    }}
-                  />
-                </div>
-              </Link>
+              <RippleButton brand={brand} />
             </motion.div>
           ))}
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.3, delay: brands.length * 0.02 }}
+          >
+            <Link
+              href="/accessories"
+              className="group relative flex flex-col items-center justify-center rounded-xl border border-dashed border-primary/30 bg-primary/[0.03] px-3 py-3 sm:py-4 text-center transition-all duration-300 ease-out hover:scale-[1.04] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/40 hover:-translate-y-0.5 active:scale-[0.97] overflow-hidden"
+            >
+              <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5">
+                <svg className="h-8 sm:h-9 w-auto text-primary/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+              </div>
+              <span className="text-[11px] sm:text-xs font-medium text-primary/70 leading-tight">
+                إكسسوارات
+              </span>
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>

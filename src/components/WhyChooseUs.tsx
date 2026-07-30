@@ -1,44 +1,77 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Truck, Shield, CreditCard, RotateCcw, Headphones, Tag, Award, Zap } from "lucide-react";
+import { Truck, Shield, CreditCard, Headphones } from "lucide-react";
 
-const reasons = [
-  { icon: Truck, title: "توصيل سريع", desc: "توصيل مجاني خلال 24-48 ساعة", color: "from-blue-500 to-cyan-500" },
-  { icon: Shield, title: "ضمان أصلي", desc: "جميع المنتجات أصلية 100%", color: "from-purple-500 to-pink-500" },
-  { icon: CreditCard, title: "دفع آمن", desc: "تشفير SSL لحماية بياناتك", color: "from-emerald-500 to-teal-500" },
-  { icon: RotateCcw, title: "إرجاع سهل", desc: "إرجاع واستبدال خلال 14 يوم", color: "from-orange-500 to-red-500" },
-  { icon: Headphones, title: "دعم 24/7", desc: "فريق دعم متاح على مدار الساعة", color: "from-indigo-500 to-blue-500" },
-  { icon: Tag, title: "أفضل الأسعار", desc: "ضمان أفضل سعر في السوق", color: "from-pink-500 to-rose-500" },
-  { icon: Award, title: "منتجات مضمونة", desc: "اختيار دقيق لأفضل المنتجات", color: "from-amber-500 to-orange-500" },
-  { icon: Zap, title: "شحن سريع", desc: "توصيل في نفس اليوم للمدن الكبرى", color: "from-cyan-500 to-blue-500" },
+const features = [
+  {
+    icon: Truck,
+    title: "توصيل سريع",
+    desc: "توصيل مجاني خلال 24–48 ساعة لجميع المدن المغربية",
+    color: "text-emerald-600 dark:text-emerald-400",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    borderColor: "border-emerald-200 dark:border-emerald-800/30",
+  },
+  {
+    icon: Shield,
+    title: "ضمان أصلي",
+    desc: "جميع المنتجات أصلية 100% مع ضمان لمدة سنة كاملة",
+    color: "text-blue-600 dark:text-blue-400",
+    bgColor: "bg-blue-100 dark:bg-blue-900/30",
+    borderColor: "border-blue-200 dark:border-blue-800/30",
+  },
+  {
+    icon: CreditCard,
+    title: "دفع آمن",
+    desc: "نظام دفع مشفر وآمن عبر البطاقات البنكية والتحويل",
+    color: "text-violet-600 dark:text-violet-400",
+    bgColor: "bg-violet-100 dark:bg-violet-900/30",
+    borderColor: "border-violet-200 dark:border-violet-800/30",
+  },
+  {
+    icon: Headphones,
+    title: "دعم 24/7",
+    desc: "فريق دعم فني متاح على مدار الساعة لمساعدتك",
+    color: "text-rose-600 dark:text-rose-400",
+    bgColor: "bg-rose-100 dark:bg-rose-900/30",
+    borderColor: "border-rose-200 dark:border-rose-800/30",
+  },
 ];
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-20 bg-surface/50">
+    <section className="py-14 sm:py-18">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
-          <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">لماذا نحن؟</span>
-          <h2 className="mb-4 text-3xl font-black tracking-tight sm:text-4xl">لماذا تختار <span className="text-accent-gradient">TechVault</span></h2>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 sm:mb-10 text-center"
+        >
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            لماذا TechVault؟
+          </h2>
+          <p className="mt-1 text-[13px] text-text-muted">
+            نقدم لك أفضل تجربة تسوق إلكتروني في المغرب
+          </p>
         </motion.div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {reasons.map((r, i) => (
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+          {features.map((f, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -6 }}
-              className="group rounded-2xl border border-border bg-surface p-6 text-center transition-all duration-300 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
+              transition={{ duration: 0.35, delay: i * 0.05 }}
+              className={`rounded-xl border ${f.borderColor} ${f.bgColor}/20 bg-surface px-4 py-5 sm:py-6 text-center transition-all duration-250 hover:shadow-md hover:-translate-y-1`}
             >
-              <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${r.color} text-white transition-transform duration-300 group-hover:scale-110`}>
-                <r.icon className="h-6 w-6" />
+              <div className={`mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${f.bgColor} ${f.color}`}>
+                <f.icon className="h-5.5 w-5.5" strokeWidth={1.5} />
               </div>
-              <h3 className="mb-1 text-sm font-bold text-foreground">{r.title}</h3>
-              <p className="text-xs text-text-muted">{r.desc}</p>
+              <h3 className="text-sm font-semibold text-foreground mb-1">{f.title}</h3>
+              <p className="text-[12px] text-text-muted leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>

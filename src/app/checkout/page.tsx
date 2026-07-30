@@ -91,7 +91,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-3xl font-black">إتمام <span className="text-accent-gradient">الشراء</span></motion.h1>
+        <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-lg sm:text-xl font-semibold">إتمام الشراء</motion.h1>
 
         <div className="grid gap-8 lg:grid-cols-3">
           <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-6">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
@@ -23,79 +23,92 @@ export default function HomeClient({ initialProducts, initialDeals, initialAcces
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
 
-  let filtered = initialProducts;
+  const filtered = useMemo(() => {
+    let result = initialProducts;
 
-  if (categoryFilter === "new") {
-    filtered = filtered.filter((p) => p.condition === "جديد");
-  } else if (categoryFilter === "used") {
-    filtered = filtered.filter((p) => p.condition === "مستعمل" || p.condition === "مجدد");
-  } else if (categoryFilter === "flagship") {
-    filtered = filtered.filter((p) => p.category === "flagship");
-  } else if (categoryFilter === "budget") {
-    filtered = filtered.filter((p) => p.category === "budget" || p.category === "mid-range");
-  } else if (categoryFilter === "gaming") {
-    filtered = filtered.filter((p) => p.category === "gaming");
-  } else if (categoryFilter === "bestsellers") {
-    filtered = filtered.filter((p) => p.badge === "الأكثر مبيعاً");
-  }
+    if (categoryFilter === "new") {
+      result = result.filter((p) => p.condition === "جديد");
+    } else if (categoryFilter === "used") {
+      result = result.filter((p) => p.condition === "مستعمل" || p.condition === "مجدد");
+    } else if (categoryFilter === "flagship") {
+      result = result.filter((p) => p.category === "flagship");
+    } else if (categoryFilter === "budget") {
+      result = result.filter((p) => p.category === "budget" || p.category === "mid-range");
+    } else if (categoryFilter === "gaming") {
+      result = result.filter((p) => p.category === "gaming");
+    } else if (categoryFilter === "bestsellers") {
+      result = result.filter((p) => p.badge === "الأكثر مبيعاً");
+    }
 
-  if (sortBy === "price-low") filtered = [...filtered].sort((a, b) => a.price - b.price);
-  if (sortBy === "price-high") filtered = [...filtered].sort((a, b) => b.price - a.price);
-  if (sortBy === "rating") filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+    if (sortBy === "price-low") result = [...result].sort((a, b) => a.price - b.price);
+    if (sortBy === "price-high") result = [...result].sort((a, b) => b.price - a.price);
+    if (sortBy === "rating") result = [...result].sort((a, b) => b.rating - a.rating);
+
+    return result;
+  }, [initialProducts, categoryFilter, sortBy]);
 
   return (
     <>
       <Navbar onSearchOpen={() => setSearchOpen(true)} onCartOpen={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} products={initialProducts} />
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} products={initialProducts} accessories={initialAccessories} />
 
       <main className="flex-1">
         <Hero />
         <Categories />
 
-        <section id="products" className="py-16 sm:py-20 scroll-mt-20">
+        <section id="products" className="py-10 sm:py-14 scroll-mt-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-8 text-center">
-              <span className="mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-primary">مختاراتنا</span>
-              <h2 className="mb-4 text-2xl sm:text-3xl font-black tracking-tight sm:text-4xl">أحدث <span className="text-accent-gradient">الهواتف</span></h2>
-              <p className="text-text-muted text-sm">اكتشف أفضل الهواتف الذكية بأفضل الأسعار</p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="mb-6 sm:mb-8"
+            >
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+                أحدث الهواتف
+              </h2>
+              <p className="mt-1 text-[13px] text-text-muted">اكتشف أحدث الهواتف الذكية بأفضل الأسعار</p>
             </motion.div>
 
-            <div className="mb-5 flex overflow-x-auto gap-2 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center scrollbar-none">
+            <div className="mb-4 flex overflow-x-auto gap-1.5 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-none">
               {productCategories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategoryFilter(cat.id)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                  className={`flex-shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                     categoryFilter === cat.id
-                      ? "accent-gradient text-white shadow-lg shadow-primary/25"
-                      : "border border-border bg-surface text-text-muted hover:border-primary/30 hover:text-primary"
+                      ? "bg-foreground text-background"
+                      : "bg-surface text-text-muted border border-border/60 hover:border-foreground/30 hover:text-foreground"
                   }`}
                 >
-                  <span>{cat.icon}</span>
                   {cat.label}
                 </button>
               ))}
             </div>
 
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-sm text-text-muted">{filtered.length} منتج</p>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="rounded-xl border border-border bg-surface px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-xs text-text-muted">{filtered.length} منتج</p>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="rounded-lg border border-border/60 bg-surface px-2.5 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
+              >
                 <option value="featured">المميزة</option>
-                <option value="price-low">السعر: من الأقل للأعلى</option>
-                <option value="price-high">السعر: من الأعلى للأقل</option>
-                <option value="rating">الأعلى تقييماً</option>
+                <option value="price-low">السعر: من الأقل</option>
+                <option value="price-high">السعر: من الأعلى</option>
+                <option value="rating">التقييم</option>
               </select>
             </div>
 
             {filtered.length === 0 ? (
-              <div className="py-20 text-center">
-                <p className="text-5xl mb-4">📱</p>
-                <p className="text-lg font-bold text-foreground mb-2">لا توجد منتجات</p>
-                <p className="text-sm text-text-muted">جرّب تغيير الفلتر أو البحث عن هاتف آخر</p>
+              <div className="py-16 text-center">
+                <p className="text-sm font-medium text-foreground mb-0.5">لا توجد منتجات</p>
+                <p className="text-xs text-text-muted">جرّب تغيير الفلتر</p>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {filtered.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}

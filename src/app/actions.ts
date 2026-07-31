@@ -1,9 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { mapProduct, mapFlashDeal, mapReview, mapAccessory } from "@/lib/supabase/mappers";
 import { brandLogos } from "@/data/brandLogos";
 import { brandColorsByName, type Brand } from "@/data/products";
+import { capturePayPalOrder, getPayPalAccessToken, type PayPalSettings } from "@/lib/payments";
 
 export async function getProducts(brand?: string, category?: string) {
   const supabase = await createClient();
@@ -166,9 +168,60 @@ export async function deleteReview(id: string) {
 
 export async function createOrder(order: Record<string, unknown>) {
   const supabase = await createClient();
-  const { error } = await supabase.from("orders").insert(order);
+  const { data, error } = await supabase
+    .from("orders")
+    .insert({ ...order, payment_status: "pending" })
+    .select("id")
+    .single();
   if (error) throw error;
-  return { success: true };
+  return { orderId: data.id };
+}
+
+export async function getCheckoutPaymentSettings() {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("payment_settings")
+    .select(
+      "paypal_client_id, paypal_mode, paypal_currency, paypal_rate, paypal_enabled, cod_enabled"
+    )
+    .eq("id", 1)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function capturePayPalPayment(
+  orderData: Record<string, unknown>,
+  paypalOrderId: string
+) {
+  const supabase = createAdminClient();
+  const { data: settings, error: settingsError } = await supabase
+    .from("payment_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+  if (settingsError) throw settingsError;
+
+  const capture = await capturePayPalOrder(paypalOrderId, settings as PayPalSettings);
+  if (capture.status !== "COMPLETED") {
+    throw new Error("لم يكتمل الدفع في PayPal");
+  }
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .insert({
+      ...orderData,
+      payment_method: "paypal",
+      payment_status: "paid",
+      transaction_id: capture.id,
+      paid_at: new Date().toISOString(),
+      payer_email: capture.payer?.email_address || null,
+      payer_id: capture.payer?.payer_id || null,
+    })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return { orderId: order.id, transactionId: capture.id };
 }
 
 export async function getOrders() {

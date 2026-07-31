@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { User, Mail, Phone, MapPin, CreditCard, FileText, Truck, CheckCircle } from "lucide-react";
+import { User, Mail, Phone, MapPin, Wallet, FileText, Truck, Banknote } from "lucide-react";
 import ShimmerButton from "@/components/ui/shimmer-button";
 import { useCart } from "@/context/CartContext";
-import { createOrder } from "../actions";
+import { createOrder, getCheckoutPaymentSettings, capturePayPalPayment } from "../actions";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   firstName: z.string().min(2, "الاسم قصير جداً"),
@@ -19,7 +20,7 @@ const schema = z.object({
   address: z.string().min(5, "العنوان غير كافٍ"),
   postalCode: z.string().min(5, "الرمز البريدي غير صالح"),
   age: z.number().min(16, "العمر الأدنى 16 سنة").max(100),
-  paymentMethod: z.enum(["cod", "card", "paypal"]),
+  paymentMethod: z.enum(["cod", "paypal"]),
   deliveryOption: z.enum(["standard", "express"]),
   notes: z.string().optional(),
   acceptTerms: z.literal(true, { message: "يجب الموافقة على الشروط" }),
@@ -27,71 +28,196 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function CheckoutPage() {
-  const { items, total, discount, couponCode, applyCoupon } = useCart();
-  const [coupon, setCoupon] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+type PublicPaymentSettings = {
+  paypal_client_id: string;
+  paypal_mode: string;
+  paypal_currency: string;
+  paypal_rate: number;
+  paypal_enabled: boolean;
+  cod_enabled: boolean;
+};
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
-    resolver: zodResolver(schema) as any,
+interface PayPalSdk {
+  Buttons: (opts: {
+    style?: Record<string, unknown>;
+    createOrder: (data: unknown, actions: { order: { create: (opts: { purchase_units: { amount: { value: string; currency_code: string } }[]; application_context?: Record<string, unknown> }) => Promise<string> } }) => Promise<string>;
+    onApprove: (data: { orderID: string }, actions: unknown) => void | Promise<void>;
+    onError: (err: Record<string, unknown>) => void;
+  }) => { render: (container: HTMLDivElement) => Promise<void> };
+}
+
+declare global {
+  interface Window {
+    paypal?: PayPalSdk;
+  }
+}
+
+function loadPayPalScript(clientId: string, currency: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.getElementById("paypal-sdk")) return resolve();
+    const script = document.createElement("script");
+    script.id = "paypal-sdk";
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=${encodeURIComponent(currency)}&intent=capture&locale=ar_MA`;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("فشل تحميل PayPal SDK"));
+    document.body.appendChild(script);
+  });
+}
+
+export default function CheckoutPage() {
+  const { items, total, discount, clearCart, applyCoupon } = useCart();
+  const router = useRouter();
+  const [coupon, setCoupon] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [settings, setSettings] = useState<PublicPaymentSettings | null>(null);
+  const [paypalLoading, setPaypalLoading] = useState(false);
+  const [paypalReady, setPaypalReady] = useState(false);
+  const [paypalError, setPaypalError] = useState("");
+  const [checkoutData, setCheckoutData] = useState<FormData | null>(null);
+  const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const buttonsRenderedRef = useRef(false);
+
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormData>({
+    resolver: zodResolver(schema),
     defaultValues: { paymentMethod: "cod", deliveryOption: "standard" },
   });
+
+  const method = watch("paymentMethod");
+
+  useEffect(() => {
+    getCheckoutPaymentSettings()
+      .then((data) => {
+        setSettings(data as PublicPaymentSettings);
+        if (data && data.cod_enabled === false && data.paypal_enabled !== false) {
+          setValue("paymentMethod", "paypal");
+        }
+      })
+      .catch(() => setSettings({ paypal_client_id: "", paypal_mode: "sandbox", paypal_currency: "USD", paypal_rate: 10, paypal_enabled: true, cod_enabled: true }));
+  }, [setValue]);
+
+  useEffect(() => {
+    if (method !== "paypal" || !settings?.paypal_client_id || !settings.paypal_enabled) {
+      setPaypalReady(false);
+      return;
+    }
+    let cancelled = false;
+    setPaypalLoading(true);
+    loadPayPalScript(settings.paypal_client_id, settings.paypal_currency)
+      .then(() => { if (!cancelled) setPaypalReady(true); })
+      .catch(() => { if (!cancelled) setPaypalError("تعذر تحميل PayPal"); })
+      .finally(() => { if (!cancelled) setPaypalLoading(false); });
+    return () => { cancelled = true; };
+  }, [method, settings]);
 
   const shipping = watch("deliveryOption") === "express" ? 99 : (total > 5000 ? 0 : 49);
   const vat = Math.round(total * 0.2);
   const discountAmount = discount > 0 ? Math.round(total * discount / 100) : 0;
   const finalTotal = total - discountAmount + shipping + vat;
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      await createOrder({
-        first_name: data.firstName,
-        last_name: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        city: data.city,
-        address: data.address,
-        postal_code: data.postalCode,
-        payment_method: data.paymentMethod,
-        delivery_option: data.deliveryOption,
-        notes: data.notes || null,
-        total: finalTotal,
-        discount: discountAmount,
-        shipping: shipping,
-        vat: vat,
-        items: items.map((item) => ({
-          id: item.id,
-          name: item.name,
-          brand: item.brand,
-          price: item.price,
-          quantity: item.quantity,
-          color: item.color,
-          storage: item.storage,
-        })),
-      });
-    } catch {
-      // Order saved locally even if Supabase fails
-    }
-    setSubmitted(true);
+  const computeTotals = (deliveryOption: FormData["deliveryOption"]) => {
+    const ship = deliveryOption === "express" ? 99 : (total > 5000 ? 0 : 49);
+    const v = Math.round(total * 0.2);
+    const d = discount > 0 ? Math.round(total * discount / 100) : 0;
+    return { ship, v, d, final: total - d + ship + v };
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
-          <CheckCircle className="mx-auto mb-6 h-20 w-20 text-emerald-500" />
-          <h1 className="mb-4 text-3xl font-black text-foreground">تم الطلب بنجاح!</h1>
-          <p className="mb-8 text-text-muted">شكراً لك. سيتم التواصل معك قريباً لتأكيد الطلب.</p>
-          <a href="/" className="inline-block"><ShimmerButton>العودة للمتجر</ShimmerButton></a>
-        </motion.div>
-      </div>
-    );
-  }
+  const buildOrderPayload = (data: FormData, t: { ship: number; v: number; d: number; final: number }) => ({
+    first_name: data.firstName,
+    last_name: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    city: data.city,
+    address: data.address,
+    postal_code: data.postalCode,
+    payment_method: data.paymentMethod,
+    delivery_option: data.deliveryOption,
+    notes: data.notes || null,
+    total: t.final,
+    discount: t.d,
+    shipping: t.ship,
+    vat: t.v,
+    items: items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      brand: item.brand,
+      price: item.price,
+      quantity: item.quantity,
+      color: item.color,
+      storage: item.storage,
+    })),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setSubmitError("");
+    if (data.paymentMethod === "cod") {
+      setSubmitting(true);
+      try {
+        const { orderId } = await createOrder(buildOrderPayload(data, computeTotals(data.deliveryOption)));
+        clearCart();
+        router.push(`/checkout/success?order=${orderId}&method=cod`);
+      } catch {
+        setSubmitError("تعذر حفظ الطلب. حاول مرة أخرى.");
+        setSubmitting(false);
+      }
+    } else {
+      setCheckoutData(data);
+    }
+  };
+
+  useEffect(() => {
+    if (!checkoutData || !paypalReady || !settings || buttonsRenderedRef.current) return;
+    const container = paypalContainerRef.current;
+    if (!container) return;
+    if (!window.paypal) return;
+
+    buttonsRenderedRef.current = true;
+    const totals = computeTotals(checkoutData.deliveryOption);
+    const usdAmount = (totals.final / settings.paypal_rate).toFixed(2);
+
+    window.paypal!.Buttons({
+      style: { layout: "vertical", color: "gold", shape: "rect", height: 45 },
+      createOrder: (_d, actions) =>
+        actions.order.create({
+          purchase_units: [{ amount: { value: usdAmount, currency_code: settings.paypal_currency } }],
+          application_context: { shipping_preference: "NO_SHIPPING" },
+        }),
+      onApprove: async (data: { orderID: string }) => {
+        setSubmitting(true);
+        try {
+          const { orderId } = await capturePayPalPayment(buildOrderPayload(checkoutData, totals), data.orderID);
+          clearCart();
+          router.push(`/checkout/success?order=${orderId}&method=paypal`);
+        } catch {
+          setSubmitError("لم يكتمل الدفع. لم يتم إنشاء أي طلب.");
+          setSubmitting(false);
+        }
+      },
+      onError: () => {
+        setSubmitError("حدث خطأ أثناء معالجة الدفع. حاول مرة أخرى.");
+      },
+    }).render(container);
+  }, [checkoutData, paypalReady, settings]);
+
+  const methodOptions = [
+    ...(settings?.cod_enabled !== false ? [{ value: "cod", label: "الدفع عند الاستلام", desc: "ادفع نقداً عند التوصيل", icon: Banknote }] : []),
+    ...(settings?.paypal_enabled !== false ? [{ value: "paypal", label: "PayPal", desc: "ادفع بأمان عبر PayPal", icon: Wallet }] : []),
+  ];
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-lg sm:text-xl font-semibold">إتمام الشراء</motion.h1>
+
+        {submitError && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-600"
+          >
+            {submitError}
+          </motion.div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-3">
           <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-6">
@@ -109,7 +235,7 @@ export default function CheckoutPage() {
                     <label className="mb-1.5 block text-xs font-medium text-text-muted">{field.label}</label>
                     <div className="relative">
                       <field.icon className="absolute top-1/2 right-3 -translate-y-1/2 h-4 w-4 text-text-muted" />
-                      <input type={field.type || "text"} placeholder={field.placeholder} {...register(field.name)} className={`w-full rounded-xl border bg-background py-3 pr-10 pl-3 text-sm text-foreground placeholder-text-muted transition-colors focus:outline-none ${errors[field.name] ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`} />
+                      <input type={field.type || "text"} placeholder={field.placeholder} {...register(field.name, field.name === "age" ? { valueAsNumber: true } : undefined)} className={`w-full rounded-xl border bg-background py-3 pr-10 pl-3 text-sm text-foreground placeholder-text-muted transition-colors focus:outline-none ${errors[field.name] ? "border-red-500 focus:border-red-500" : "border-border focus:border-primary"}`} />
                     </div>
                     {errors[field.name] && <p className="mt-1 text-[11px] text-red-500">{errors[field.name]?.message}</p>}
                   </div>
@@ -160,15 +286,12 @@ export default function CheckoutPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl border border-border bg-surface p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold"><CreditCard className="h-5 w-5 text-primary" /> طريقة الدفع</h2>
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold"><Wallet className="h-5 w-5 text-primary" /> طريقة الدفع</h2>
               <div className="space-y-3">
-                {[
-                  { value: "cod", label: "الدفع عند الاستلام", desc: "ادفع نقداً عند التوصيل" },
-                  { value: "card", label: "بطاقة بنكية", desc: "Visa / Mastercard / Mada" },
-                  { value: "paypal", label: "Apple Pay", desc: "ادفع بسهولة بأبل باي" },
-                ].map((opt) => (
-                  <label key={opt.value} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all ${watch("paymentMethod") === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
+                {methodOptions.map((opt) => (
+                  <label key={opt.value} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all ${method === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
                     <input type="radio" value={opt.value} {...register("paymentMethod")} className="h-4 w-4 accent-primary" />
+                    <opt.icon className="h-5 w-5 text-primary shrink-0" />
                     <div>
                       <p className="text-sm font-bold text-foreground">{opt.label}</p>
                       <p className="text-[11px] text-text-muted">{opt.desc}</p>
@@ -176,6 +299,25 @@ export default function CheckoutPage() {
                   </label>
                 ))}
               </div>
+
+              {method === "paypal" && (
+                <div className="mt-4 rounded-xl border border-border/60 bg-background p-4">
+                  {!checkoutData ? (
+                    <p className="py-2 text-center text-xs text-text-muted">أكمل بياناتك ثم اضغط «المتابعة للدفع» لإظهار زر PayPal</p>
+                  ) : paypalLoading ? (
+                    <p className="py-2 text-center text-xs text-text-muted">جارٍ تجهيز الدفع عبر PayPal...</p>
+                  ) : paypalError ? (
+                    <p className="py-2 text-center text-xs text-red-500">{paypalError}</p>
+                  ) : (
+                    <>
+                      <div ref={paypalContainerRef} />
+                      <p className="mt-2 text-center text-[11px] text-text-muted">
+                        سيتم خصم {(computeTotals(checkoutData.deliveryOption).final / (settings?.paypal_rate || 10)).toFixed(2)} {settings?.paypal_currency}
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="rounded-2xl border border-border bg-surface p-6">
@@ -216,8 +358,12 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-text-muted"><span>الضريبة (20%)</span><span>{vat.toLocaleString()} درهم</span></div>
                 <div className="border-t border-border pt-2 flex justify-between font-black text-foreground"><span>الإجمالي</span><span className="text-primary text-lg">{finalTotal.toLocaleString()} درهم</span></div>
               </div>
-              <ShimmerButton type="submit" onClick={handleSubmit(onSubmit)} className="w-full" shimmerDuration="2.5s">
-                تأكيد الطلب - {finalTotal.toLocaleString()} درهم
+              <ShimmerButton type="button" onClick={handleSubmit(onSubmit)} disabled={submitting} className="w-full" shimmerDuration="2.5s">
+                {submitting
+                  ? "جارٍ المعالجة..."
+                  : method === "paypal"
+                    ? `المتابعة للدفع - ${finalTotal.toLocaleString()} درهم`
+                    : `تأكيد الطلب - ${finalTotal.toLocaleString()} درهم`}
               </ShimmerButton>
               <p className="text-center text-[10px] text-text-muted">🔒 دفع آمن ومحمي بالكامل</p>
             </div>

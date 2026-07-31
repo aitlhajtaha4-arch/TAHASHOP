@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Star, Bell, LogOut, Menu, X, ChevronLeft, Zap, Headphones } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Star, Bell, LogOut, Menu, X, ChevronLeft, Zap, Headphones, Settings } from "lucide-react";
 import { getAdminProfile, signOutAdmin } from "./actions";
 import { useRouter } from "next/navigation";
 
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/admin/orders", label: "الطلبات", icon: ShoppingCart },
   { href: "/admin/reviews", label: "التقييمات", icon: Star },
   { href: "/admin/notifications", label: "الإشعارات", icon: Bell },
+  { href: "/admin/settings/payments", label: "إعدادات الدفع", icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

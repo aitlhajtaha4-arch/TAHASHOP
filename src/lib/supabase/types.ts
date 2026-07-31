@@ -130,6 +130,11 @@ export type Database = {
           shipping: number;
           vat: number;
           items: unknown;
+          payment_status: string;
+          transaction_id: string | null;
+          paid_at: string | null;
+          payer_email: string | null;
+          payer_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -150,7 +155,36 @@ export type Database = {
           shipping?: number;
           vat?: number;
           items?: unknown;
+          payment_status?: string;
+          transaction_id?: string | null;
+          paid_at?: string | null;
+          payer_email?: string | null;
+          payer_id?: string | null;
           created_at?: string;
+        };
+      };
+      payment_settings: {
+        Row: {
+          id: number;
+          paypal_client_id: string;
+          paypal_client_secret: string;
+          paypal_mode: string;
+          paypal_currency: string;
+          paypal_rate: number;
+          paypal_enabled: boolean;
+          cod_enabled: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          paypal_client_id?: string;
+          paypal_client_secret?: string;
+          paypal_mode?: string;
+          paypal_currency?: string;
+          paypal_rate?: number;
+          paypal_enabled?: boolean;
+          cod_enabled?: boolean;
+          updated_at?: string;
         };
       };
       admins: {

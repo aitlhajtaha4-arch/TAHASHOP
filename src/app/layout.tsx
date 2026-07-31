@@ -36,7 +36,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} ${cairo.variable} h-full dark`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cairo.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
@@ -44,10 +44,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var saved = localStorage.getItem('theme');
-                var dark = saved ? saved === 'dark' : true;
-                document.documentElement.classList.toggle('dark', dark);
-                document.documentElement.classList.remove('light');
+                try {
+                  var saved = localStorage.getItem('theme');
+                  var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  document.documentElement.classList.toggle('dark', dark);
+                } catch (e) {}
               })();
             `,
           }}

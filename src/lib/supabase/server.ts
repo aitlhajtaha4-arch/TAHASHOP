@@ -14,9 +14,16 @@ export async function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            const remember = cookieStore.get("rememberAdmin")?.value === "1";
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(
+                name,
+                value,
+                remember && name.startsWith("sb-")
+                  ? { ...options, maxAge: 60 * 60 * 24 * 30 }
+                  : options
+              );
+            });
           } catch {}
         },
       },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, Zap } from "lucide-react";
 import { signInAdmin } from "../actions";
@@ -11,16 +11,30 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedAdminEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRemember(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      await signInAdmin(email, password);
+      if (remember) {
+        localStorage.setItem("rememberedAdminEmail", email);
+      } else {
+        localStorage.removeItem("rememberedAdminEmail");
+      }
+      await signInAdmin(email, password, remember);
       router.push("/admin");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "خطأ في تسجيل الدخول");
@@ -104,6 +118,16 @@ export default function AdminLogin() {
                 </button>
               </div>
             </div>
+
+            <label className="flex cursor-pointer items-center gap-2.5 select-none">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 accent-blue-600"
+              />
+              <span className="text-[13px] font-semibold text-gray-600">تذكرني</span>
+            </label>
 
             <motion.button
               type="submit"

@@ -78,7 +78,7 @@ export default function Reviews() {
   const productOptions = products.slice(0, 30);
 
   return (
-    <section id="reviews" className="py-14 sm:py-18">
+    <section id="reviews" className="py-10 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -95,17 +95,17 @@ export default function Reviews() {
           </p>
         </motion.div>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-[auto_1fr] sm:gap-8 rounded-2xl border border-border/60 bg-surface p-5 sm:p-6">
+        <div className="mb-6 grid gap-3 sm:grid-cols-[auto_1fr] sm:gap-6 rounded-2xl border border-border/60 bg-surface p-4 sm:p-5">
           <div className="flex flex-col items-center justify-center text-center">
-            <div className="text-5xl font-black text-foreground leading-none">
+            <div className="text-4xl font-black text-foreground leading-none">
               {(allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)}
             </div>
-            <div className="mt-2 flex gap-0.5">
+            <div className="mt-1.5 flex gap-0.5">
               {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} className={`h-4 w-4 ${s <= Math.round(allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`} />
+                <Star key={s} className={`h-3.5 w-3.5 ${s <= Math.round(allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`} />
               ))}
             </div>
-            <p className="mt-2 text-xs text-text-muted">{allReviews.length} تقييم</p>
+            <p className="mt-1.5 text-[11px] text-text-muted">{allReviews.length} تقييم</p>
           </div>
 
           <div className="flex flex-col justify-center gap-1.5">
@@ -115,7 +115,7 @@ export default function Reviews() {
               return (
                 <div key={star} className="flex items-center gap-2 text-[11px]">
                   <span className="w-8 text-text-muted shrink-0">{star} ★</span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-dark">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-dark">
                     <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="w-8 text-xs text-text-muted tabular-nums">{pct}%</span>
@@ -125,7 +125,7 @@ export default function Reviews() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <button
             onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-primary/90 active:scale-[0.97]"
@@ -154,7 +154,7 @@ export default function Reviews() {
           </div>
         ) : (
           <>
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {displayed.map((review, i) => {
                 const reviewId = review.id;
                 const product = products.find((p) => p.id === review.productId);
@@ -168,46 +168,49 @@ export default function Reviews() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04, duration: 0.35 }}
-                    className="rounded-xl border border-border/60 bg-surface p-4 sm:p-5 transition-all duration-250 hover:shadow-sm hover:border-primary/15"
+                    className="flex flex-col rounded-xl border border-border/60 bg-surface p-3.5 sm:p-4 transition-all duration-250 hover:shadow-sm hover:border-primary/15"
                   >
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary shrink-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary shrink-0">
                         {"initials" in review ? (review as any).initials : review.name.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1">
-                          <h4 className="text-sm font-medium text-foreground">{review.name}</h4>
+                          <h4 className="text-[13px] font-semibold text-foreground truncate">{review.name}</h4>
                           <BadgeCheck className="h-3 w-3 text-blue-500 shrink-0" />
                         </div>
                         <span className="text-[10px] text-text-muted">{review.date}</span>
                       </div>
-                      <div className="flex gap-0.5">
+                      <div className="flex gap-0.5 shrink-0">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className={`h-3 w-3 ${s <= review.rating ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`} />
+                          <Star key={s} className={`h-2.5 w-2.5 ${s <= review.rating ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`} />
                         ))}
                       </div>
                     </div>
 
-                    <p className="text-sm text-text-muted leading-relaxed mb-2">&ldquo;{review.content}&rdquo;</p>
+                    <p className="text-[13px] text-text-muted leading-relaxed mb-2 line-clamp-3">&ldquo;{review.content}&rdquo;</p>
 
-                    {product && (
-                      <p className="text-[10px] font-medium text-primary/60 mb-3">{product.name}</p>
-                    )}
-
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => toggleLike(reviewId)}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all duration-200 ${
-                          isLiked ? "bg-red-500/10 text-red-500" : "bg-surface-dark text-text-muted hover:text-red-500 hover:bg-red-500/5"
-                        }`}
-                      >
-                        <Heart className={`h-3.5 w-3.5 ${isLiked ? "fill-red-500" : ""}`} />
-                        {likeCount > 0 ? likeCount : "إعجاب"}
-                      </button>
-                      <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-text-muted hover:text-primary transition-colors">
-                        <MessageCircle className="h-3 w-3" />
-                        رد
-                      </button>
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+                      {product ? (
+                        <span className="truncate rounded-md bg-primary/[0.06] px-2 py-0.5 text-[10px] font-medium text-primary/70 max-w-[55%]">{product.name}</span>
+                      ) : (
+                        <span />
+                      )}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => toggleLike(reviewId)}
+                          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-all duration-200 ${
+                            isLiked ? "bg-red-500/10 text-red-500" : "bg-surface-dark text-text-muted hover:text-red-500 hover:bg-red-500/5"
+                          }`}
+                        >
+                          <Heart className={`h-3 w-3 ${isLiked ? "fill-red-500" : ""}`} />
+                          {likeCount > 0 ? likeCount : "إعجاب"}
+                        </button>
+                        <button className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-text-muted hover:text-primary transition-colors">
+                          <MessageCircle className="h-3 w-3" />
+                          رد
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 );

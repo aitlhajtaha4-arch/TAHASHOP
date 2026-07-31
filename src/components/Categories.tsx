@@ -35,7 +35,7 @@ function RippleButton({ brand }: { brand: Brand }) {
           style={{ left: r.x - 12, top: r.y - 12, width: 24, height: 24 }}
         />
       ))}
-      <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5">
+      <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5 rounded-lg overflow-hidden">
         <img
           src={brand.logo}
           alt={brand.name}
@@ -77,6 +77,7 @@ export default function Categories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-20px" }}
               transition={{ duration: 0.3, delay: i * 0.02 }}
+              className="min-w-0"
             >
               <RippleButton brand={brand} />
             </motion.div>
@@ -92,7 +93,7 @@ export default function Categories() {
               href="/accessories"
               className="group relative flex flex-col items-center justify-center rounded-xl border border-dashed border-primary/30 bg-primary/[0.03] px-3 py-3 sm:py-4 text-center transition-all duration-300 ease-out hover:scale-[1.04] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/40 hover:-translate-y-0.5 active:scale-[0.97] overflow-hidden"
             >
-              <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5">
+              <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 mb-1.5 rounded-lg overflow-hidden">
                 <svg className="h-8 sm:h-9 w-auto text-primary/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                 </svg>

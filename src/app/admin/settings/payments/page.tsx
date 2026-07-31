@@ -27,7 +27,12 @@ export default function AdminPayments() {
   useEffect(() => {
     getPaymentSettings()
       .then((data) => setSettings(data as Settings))
-      .catch(() => setMessage({ type: "error", text: "تعذر تحميل الإعدادات" }))
+      .catch((err: unknown) =>
+        setMessage({
+          type: "error",
+          text: err instanceof Error ? err.message : "تعذر تحميل الإعدادات",
+        })
+      )
       .finally(() => setLoading(false));
   }, []);
 

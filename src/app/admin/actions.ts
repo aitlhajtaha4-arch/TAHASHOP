@@ -5,6 +5,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPayPalAccessToken, type PayPalMode } from "@/lib/payments";
 import { cookies } from "next/headers";
 
+function mapAuthError(error: { message?: string }): string {
+  const msg = (error.message || "").toLowerCase();
+  if (msg.includes("invalid login credentials")) return "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+  if (msg.includes("email not confirmed")) return "لم يتم تأكيد البريد الإلكتروني بعد";
+  if (msg.includes("invalid email")) return "البريد الإلكتروني غير صالح";
+  if (msg.includes("rate limit")) return "محاولات كثيرة جداً — انتظر دقيقة ثم أعد المحاولة";
+  return error.message || "خطأ في تسجيل الدخول";
+}
+
 export async function signInAdmin(email: string, password: string, remember = false) {
   const cookieStore = await cookies();
   cookieStore.set("rememberAdmin", remember ? "1" : "0", {
@@ -16,12 +25,25 @@ export async function signInAdmin(email: string, password: string, remember = fa
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+  if (error) throw new Error(mapAuthError(error));
 
-  const { data: admin } = await supabase.from("admins").select("*").eq("id", data.user.id).single();
+  const { data: admin, error: adminError } = await supabase
+    .from("admins")
+    .select("*")
+    .eq("id", data.user.id)
+    .single();
+  if (adminError) {
+    await supabase.auth.signOut();
+    throw new Error(
+      "تعذر التحقق من صلاحية المشرف. شغّل ملف إعداد الأدمن الكامل في Supabase (Database ← SQL Editor) ثم أعد المحاولة."
+    );
+  }
   if (!admin) {
     await supabase.auth.signOut();
-    throw new Error("غير مصرح لك بالدخول");
+    throw new Error(
+      "هذا الحساب غير مسجّل كمشرف بعد. في Supabase افتح Database ← SQL Editor وشغّل هذا السطر فقط:\n" +
+        `insert into public.admins (id, email, name) values ('${data.user.id}', '${email}', 'Admin') on conflict (id) do nothing;`
+    );
   }
   return admin;
 }

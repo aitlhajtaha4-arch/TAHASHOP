@@ -187,6 +187,20 @@ export type Database = {
           updated_at?: string;
         };
       };
+      pending_checkouts: {
+        Row: {
+          id: string;
+          paypal_order_id: string;
+          data: unknown;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          paypal_order_id: string;
+          data: unknown;
+          created_at?: string;
+        };
+      };
       admins: {
         Row: {
           id: string;

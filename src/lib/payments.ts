@@ -39,6 +39,58 @@ export async function getPayPalAccessToken(
   return data.access_token;
 }
 
+export async function createPayPalOrder(
+  settings: PayPalSettings,
+  amount: { currency_code: string; value: string },
+  returnUrl: string,
+  cancelUrl: string
+): Promise<{ id: string; approvalUrl: string }> {
+  const token = await getPayPalAccessToken(
+    settings.paypal_client_id,
+    settings.paypal_client_secret,
+    settings.paypal_mode
+  );
+
+  const res = await fetch(`${API_BASE[settings.paypal_mode]}/v2/checkout/orders`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: { currency_code: amount.currency_code, value: amount.value },
+          description: "TechVault",
+        },
+      ],
+      application_context: {
+        return_url: returnUrl,
+        cancel_url: cancelUrl,
+        shipping_preference: "NO_SHIPPING",
+        user_action: "PAY_NOW",
+      },
+    }),
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`فشل إنشاء الدفع في PayPal (${res.status}) ${text.slice(0, 200)}`);
+  }
+
+  const data = (await res.json()) as {
+    id: string;
+    links: { href: string; rel: string; method: string }[];
+  };
+
+  const approval = data.links?.find((l) => l.rel === "approve");
+  if (!approval?.href) throw new Error("تعذر الحصول على رابط الدفع من PayPal");
+
+  return { id: data.id, approvalUrl: approval.href };
+}
+
 export async function capturePayPalOrder(
   paypalOrderId: string,
   settings: PayPalSettings

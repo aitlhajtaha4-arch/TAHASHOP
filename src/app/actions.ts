@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { mapProduct, mapFlashDeal, mapReview, mapAccessory } from "@/lib/supabase/mappers";
 import { brandLogos } from "@/data/brandLogos";
 import { brandColorsByName, type Brand } from "@/data/products";
-import { capturePayPalOrder, getPayPalAccessToken, type PayPalSettings } from "@/lib/payments";
+import { createPayPalOrder, type PayPalSettings } from "@/lib/payments";
 
 export async function getProducts(brand?: string, category?: string) {
   const supabase = await createClient();
@@ -190,10 +190,7 @@ export async function getCheckoutPaymentSettings() {
   return data;
 }
 
-export async function capturePayPalPayment(
-  orderData: Record<string, unknown>,
-  paypalOrderId: string
-) {
+export async function startPayPalCheckout(orderData: Record<string, unknown>, origin: string) {
   const supabase = createAdminClient();
   const { data: settings, error: settingsError } = await supabase
     .from("payment_settings")
@@ -201,27 +198,31 @@ export async function capturePayPalPayment(
     .eq("id", 1)
     .single();
   if (settingsError) throw settingsError;
-
-  const capture = await capturePayPalOrder(paypalOrderId, settings as PayPalSettings);
-  if (capture.status !== "COMPLETED") {
-    throw new Error("لم يكتمل الدفع في PayPal");
+  if (!settings.paypal_enabled) throw new Error("الدفع عبر PayPal غير مفعل حالياً");
+  if (!settings.paypal_client_id || !settings.paypal_client_secret) {
+    throw new Error("لم يتم إعداد الدفع عبر PayPal بعد");
   }
 
-  const { data: order, error } = await supabase
-    .from("orders")
-    .insert({
-      ...orderData,
-      payment_method: "paypal",
-      payment_status: "paid",
-      transaction_id: capture.id,
-      paid_at: new Date().toISOString(),
-      payer_email: capture.payer?.email_address || null,
-      payer_id: capture.payer?.payer_id || null,
-    })
-    .select("id")
-    .single();
-  if (error) throw error;
-  return { orderId: order.id, transactionId: capture.id };
+  const totalMad = Number(orderData.total) || 0;
+  const rate = Number(settings.paypal_rate) || 10;
+  const amountValue = (totalMad / rate).toFixed(2);
+
+  const paypalOrder = await createPayPalOrder(
+    settings as PayPalSettings,
+    { currency_code: settings.paypal_currency, value: amountValue },
+    `${origin}/api/paypal/return`,
+    `${origin}/api/paypal/cancel`
+  );
+
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  await supabase.from("pending_checkouts").delete().lt("created_at", dayAgo);
+
+  await supabase.from("pending_checkouts").insert({
+    paypal_order_id: paypalOrder.id,
+    data: orderData,
+  });
+
+  return { approvalUrl: paypalOrder.approvalUrl };
 }
 
 export async function getOrders() {

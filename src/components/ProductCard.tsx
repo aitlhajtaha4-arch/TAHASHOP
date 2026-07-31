@@ -74,7 +74,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
         )}
       </div>
 
-      <Link href={`/product/${product.id}`} className="flex h-32 sm:h-40 items-center justify-center bg-surface-dark/50 p-4 sm:p-5">
+      <Link href={`/product/${product.id}`} className="flex h-24 sm:h-40 items-center justify-center bg-surface-dark/50 p-3 sm:p-5">
         <img
           src={product.image}
           alt={product.name}
@@ -83,7 +83,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
         />
       </Link>
 
-      <div className="flex flex-col flex-1 p-3 sm:p-4">
+      <div className="flex flex-col flex-1 p-2.5 sm:p-4">
         <p className="text-[10px] font-semibold text-primary/70 tracking-wide uppercase mb-0.5">
           {product.brand}
         </p>
@@ -96,19 +96,19 @@ export default function ProductCard({ product, index }: { product: Product; inde
 
         <Stars rating={product.rating} reviews={product.reviews} />
 
-        <div className="mt-2.5 grid grid-cols-2 gap-1">
+        <div className="mt-2 grid grid-cols-2 gap-1">
           {[
             { label: "التخزين", value: product.storage },
             { label: "الرام", value: product.ram },
           ].map((spec) => (
-            <div key={spec.label} className="rounded-lg bg-surface-dark/70 px-2 py-1">
+            <div key={spec.label} className="rounded-lg bg-surface-dark/70 px-2 py-0.5 sm:py-1">
               <span className="block text-[9px] text-text-muted">{spec.label}</span>
               <span className="block text-[10px] font-medium text-foreground">{spec.value}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-2.5 flex items-center gap-1.5">
+        <div className="mt-2 flex items-center gap-1.5">
           {product.colors.slice(0, 4).map((color, i) => (
             <span
               key={i}
@@ -122,7 +122,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
           )}
         </div>
 
-        <div className="mt-3 flex items-center gap-1.5 min-h-[28px]">
+        <div className="mt-2 flex items-center gap-1.5 min-h-[24px]">
           <span className="text-base font-semibold text-foreground">
             {product.price.toLocaleString()} <span className="text-[10px] font-normal text-text-muted">درهم</span>
           </span>
@@ -136,7 +136,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
           )}
         </div>
 
-        <div className="mt-auto pt-3 flex gap-1.5">
+        <div className="mt-auto pt-2 flex gap-1.5">
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -150,14 +150,14 @@ export default function ProductCard({ product, index }: { product: Product; inde
                 storage: product.storage,
               });
             }}
-            className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-primary py-2 text-[11px] font-medium text-white transition-all duration-200 hover:bg-primary-dark active:scale-[0.97]"
+            className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-primary py-1.5 sm:py-2 text-[11px] font-medium text-white transition-all duration-200 hover:bg-primary-dark active:scale-[0.97]"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             أضف
           </button>
           <Link
             href={`/product/${product.id}`}
-            className="flex items-center justify-center rounded-xl border border-border/60 px-3 py-2 text-[11px] font-medium text-foreground transition-all duration-200 hover:bg-surface-dark active:scale-[0.97]"
+            className="flex items-center justify-center rounded-xl border border-border/60 px-3 py-1.5 sm:py-2 text-[11px] font-medium text-foreground transition-all duration-200 hover:bg-surface-dark active:scale-[0.97]"
           >
             التفاصيل
           </Link>

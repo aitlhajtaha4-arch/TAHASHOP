@@ -77,20 +77,20 @@ export default function FlashDeals({ deals }: { deals?: FlashDeal[] }) {
                 -{deal.discount}%
               </div>
 
-              <div className="relative overflow-hidden bg-surface-dark p-6">
+              <div className="relative overflow-hidden bg-surface-dark p-4 sm:p-6">
                 <img
                   src={deal.image}
                   alt={deal.name}
-                  className="mx-auto h-40 w-auto rounded-xl object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="mx-auto h-32 sm:h-40 w-auto rounded-xl object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                 />
               </div>
 
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <p className="text-[10px] font-medium text-text-muted">{deal.brand}</p>
-                <h3 className="mb-2 text-sm font-bold text-foreground">{deal.name}</h3>
+                <h3 className="mb-1.5 sm:mb-2 text-sm font-bold text-foreground">{deal.name}</h3>
 
-                <div className="mb-3 flex items-baseline gap-2">
+                <div className="mb-2 sm:mb-3 flex items-baseline gap-2">
                   <span className="text-xl font-black text-red-500">
                     {deal.price.toLocaleString()} <span className="text-xs">درهم</span>
                   </span>
@@ -99,7 +99,7 @@ export default function FlashDeals({ deals }: { deals?: FlashDeal[] }) {
                   </span>
                 </div>
 
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-3 sm:mb-4 flex items-center justify-between">
                   <span className="text-[10px] text-text-muted">ينتهي خلال</span>
                   <Countdown endsAt={deal.endsAt} />
                 </div>
@@ -116,7 +116,7 @@ export default function FlashDeals({ deals }: { deals?: FlashDeal[] }) {
                       storage: "",
                     })
                   }
-                  className="w-full rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition-all duration-300 hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/25"
+                  className="w-full rounded-xl bg-red-500 py-2 sm:py-2.5 text-xs font-bold text-white transition-all duration-300 hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/25"
                 >
                   اشترِ الآن
                 </button>

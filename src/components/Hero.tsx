@@ -8,7 +8,7 @@ export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
-    <section className="relative h-[70vh] min-h-[520px] sm:min-h-[560px] lg:min-h-[600px] overflow-hidden">
+    <section className="relative h-[70vh] min-h-[520px] sm:min-h-[560px] lg:min-h-[600px] overflow-hidden bg-black">
       <video
         ref={videoRef}
         autoPlay
@@ -16,7 +16,7 @@ export default function Hero() {
         playsInline
         preload="auto"
         onEnded={() => videoRef.current?.pause()}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain md:object-cover"
       >
         <source src="/hero-video.mp4" type="video/mp4" />
       </video>

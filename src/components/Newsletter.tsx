@@ -18,7 +18,7 @@ export default function Newsletter() {
           transition={{ duration: 0.4 }}
           className="rounded-xl border border-border/60 bg-surface px-6 py-8 sm:px-10 sm:py-10 text-center"
         >
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-1">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-1">
             اشترك في النشرة البريدية
           </h2>
           <p className="text-sm text-text-muted mb-5">

@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { mapProduct, mapFlashDeal, mapReview, mapAccessory } from "@/lib/supabase/mappers";
 import { brandLogos } from "@/data/brandLogos";
-import type { Brand } from "@/data/products";
+import { brandColorsByName, type Brand } from "@/data/products";
 
 export async function getProducts(brand?: string, category?: string) {
   const supabase = await createClient();
@@ -63,6 +63,7 @@ export async function getBrands(): Promise<Brand[]> {
       id: Number(r.id),
       name: String(r.name),
       logo: String(brandLogos[String(r.name)] || r.logo || ""),
+      color: brandColorsByName[String(r.name)] || "#0066cc",
     }));
 }
 

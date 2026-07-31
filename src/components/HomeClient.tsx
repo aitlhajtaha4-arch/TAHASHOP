@@ -66,7 +66,7 @@ export default function HomeClient({ initialProducts, initialDeals, initialAcces
               transition={{ duration: 0.4 }}
               className="mb-6 sm:mb-8"
             >
-              <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 أحدث الهواتف
               </h2>
               <p className="mt-1 text-[13px] text-text-muted">اكتشف أحدث الهواتف الذكية بأفضل الأسعار</p>

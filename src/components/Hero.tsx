@@ -8,7 +8,7 @@ export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
-    <section className="relative h-[55vh] min-h-[420px] sm:min-h-[500px] lg:min-h-[560px] overflow-hidden">
+    <section className="relative h-[70vh] min-h-[520px] sm:min-h-[560px] lg:min-h-[600px] overflow-hidden">
       <video
         ref={videoRef}
         autoPlay
@@ -16,14 +16,16 @@ export default function Hero() {
         playsInline
         preload="auto"
         onEnded={() => videoRef.current?.pause()}
-        className="absolute inset-0 h-full w-full object-contain sm:object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
       >
         <source src="/hero-video.mp4" type="video/mp4" />
       </video>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-background pointer-events-none z-10" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0066cc]/15 via-transparent to-transparent pointer-events-none" />
+
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none z-10" />
 
       <div className="relative z-20 flex h-full items-center justify-center">
         <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 text-center">

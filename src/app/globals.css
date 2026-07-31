@@ -67,6 +67,19 @@ body {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(41, 151, 255, 0.15);
 }
 
+.brand-card {
+  --brand-color: #0066cc;
+}
+
+.brand-card:hover {
+  border-color: color-mix(in srgb, var(--brand-color) 45%, transparent);
+  box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--brand-color) 55%, transparent);
+}
+
+.brand-card:hover .brand-logo {
+  filter: drop-shadow(0 4px 12px color-mix(in srgb, var(--brand-color) 60%, transparent));
+}
+
 .line-clamp-1 {
   overflow: hidden;
   display: -webkit-box;

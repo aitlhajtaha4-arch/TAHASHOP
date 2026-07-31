@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Package, ShoppingCart, Star, Bell, LogOut, Menu, X, ChevronLeft, Zap, Headphones } from "lucide-react";
-import { signOutAdmin } from "./actions";
+import { getAdminProfile, signOutAdmin } from "./actions";
 import { useRouter } from "next/navigation";
 
 const navItems = [
@@ -21,9 +21,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    getAdminProfile()
+      .then((profile) => {
+        if (!profile) {
+          router.replace("/admin/login");
+          return;
+        }
+        setIsAdmin(true);
+      })
+      .catch(() => {
+        router.replace("/admin/login");
+      })
+      .finally(() => setChecking(false));
+  }, [router]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
+  }
+
+  if (checking || !isAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          <p className="text-sm font-medium text-text-muted">جاري التحقق من الصلاحيات...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleLogout = async () => {

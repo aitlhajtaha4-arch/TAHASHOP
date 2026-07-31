@@ -87,13 +87,43 @@ export default function Reviews() {
           transition={{ duration: 0.4 }}
           className="mb-8 sm:mb-10 text-center"
         >
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             آراء عملائنا
           </h2>
           <p className="mt-1 text-[13px] text-text-muted">
             ماذا يقولون عنا
           </p>
         </motion.div>
+
+        <div className="mb-8 grid gap-4 sm:grid-cols-[auto_1fr] sm:gap-8 rounded-2xl border border-border/60 bg-surface p-5 sm:p-6">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="text-5xl font-black text-foreground leading-none">
+              {(allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)}
+            </div>
+            <div className="mt-2 flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} className={`h-4 w-4 ${s <= Math.round(allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`} />
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-text-muted">{allReviews.length} تقييم</p>
+          </div>
+
+          <div className="flex flex-col justify-center gap-1.5">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = allReviews.filter((r) => r.rating === star).length;
+              const pct = allReviews.length ? Math.round((count / allReviews.length) * 100) : 0;
+              return (
+                <div key={star} className="flex items-center gap-2 text-[11px]">
+                  <span className="w-8 text-text-muted shrink-0">{star} ★</span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-dark">
+                    <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="w-8 text-xs text-text-muted tabular-nums">{pct}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <button

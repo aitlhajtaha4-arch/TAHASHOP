@@ -49,7 +49,7 @@ export default function WhyChooseUs() {
           transition={{ duration: 0.4 }}
           className="mb-8 sm:mb-10 text-center"
         >
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             لماذا TechVault؟
           </h2>
           <p className="mt-1 text-[13px] text-text-muted">

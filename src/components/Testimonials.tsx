@@ -52,10 +52,10 @@ export default function Testimonials() {
 
   return (
     <>
-      <section className="py-20">
+      <section className="py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }} className="mb-8 sm:mb-10 text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-foreground">تجارب عملائنا</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">تجارب عملائنا</h2>
             <p className="mt-1 text-[13px] text-text-muted">ماذا يقولون عنا</p>
           </motion.div>
 

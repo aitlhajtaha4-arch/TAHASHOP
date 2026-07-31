@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { brands, type Brand } from "@/data/products";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, type CSSProperties } from "react";
 
 function RippleButton({ brand }: { brand: Brand }) {
   const btnRef = useRef<HTMLAnchorElement>(null);
@@ -25,7 +25,8 @@ function RippleButton({ brand }: { brand: Brand }) {
       href={`/brands/${encodeURIComponent(brand.name)}`}
       aria-label={brand.name}
       onClick={handleClick}
-      className="group relative flex flex-col items-center justify-center rounded-xl border border-border/50 bg-surface px-3 py-3 sm:py-4 text-center transition-all duration-300 ease-out hover:scale-[1.04] hover:shadow-lg hover:shadow-primary/10 hover:border-primary/25 hover:-translate-y-0.5 active:scale-[0.97] overflow-hidden"
+      style={{ "--brand-color": brand.color } as CSSProperties}
+      className="group relative flex flex-col items-center justify-center rounded-xl border border-border/50 bg-surface px-3 py-3 sm:py-4 text-center transition-all duration-300 ease-out hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.97] overflow-hidden brand-card"
     >
       {ripples.map((r) => (
         <span
@@ -38,7 +39,7 @@ function RippleButton({ brand }: { brand: Brand }) {
         <img
           src={brand.logo}
           alt={brand.name}
-          className="h-full w-full object-contain"
+          className="h-full w-full object-contain brand-logo transition-transform duration-300 group-hover:scale-110"
           loading="lazy"
         />
       </div>
@@ -60,7 +61,7 @@ export default function Categories() {
           transition={{ duration: 0.4 }}
           className="mb-8 text-center"
         >
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             تسوق حسب القسم
           </h2>
           <p className="mt-1 text-[13px] text-text-muted">

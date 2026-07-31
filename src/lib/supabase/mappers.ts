@@ -1,4 +1,5 @@
 import type { Product, FlashDeal, Review, Brand, Accessory } from "@/data/products";
+import { brandColorsByName } from "@/data/products";
 
 type DbProduct = {
   id: number;
@@ -115,6 +116,7 @@ export function mapBrand(row: DbBrand): Brand {
     id: row.id,
     name: row.name,
     logo: row.logo,
+    color: brandColorsByName[row.name] || "#0066cc",
   };
 }
 

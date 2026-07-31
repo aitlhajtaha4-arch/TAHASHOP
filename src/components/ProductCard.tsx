@@ -74,11 +74,11 @@ export default function ProductCard({ product, index }: { product: Product; inde
         )}
       </div>
 
-      <Link href={`/product/${product.id}`} className="block bg-surface-dark/50 p-4 sm:p-5">
+      <Link href={`/product/${product.id}`} className="flex h-32 sm:h-40 items-center justify-center bg-surface-dark/50 p-4 sm:p-5">
         <img
           src={product.image}
           alt={product.name}
-          className="mx-auto h-32 sm:h-40 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+          className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
       </Link>
@@ -122,7 +122,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
           )}
         </div>
 
-        <div className="mt-3 flex items-baseline gap-2">
+        <div className="mt-3 flex items-center gap-1.5 min-h-[28px]">
           <span className="text-base font-semibold text-foreground">
             {product.price.toLocaleString()} <span className="text-[10px] font-normal text-text-muted">درهم</span>
           </span>
@@ -131,13 +131,12 @@ export default function ProductCard({ product, index }: { product: Product; inde
               {product.originalPrice.toLocaleString()}
             </span>
           )}
+          {discount > 0 && (
+            <span className="rounded-full bg-red-500/10 px-1.5 py-0.5 text-[9px] font-bold text-red-500">-{discount}%</span>
+          )}
         </div>
 
-        {discount > 0 && (
-          <span className="mt-1 text-[10px] font-medium text-red-500">-{discount}%</span>
-        )}
-
-        <div className="mt-3 flex gap-1.5">
+        <div className="mt-auto pt-3 flex gap-1.5">
           <button
             onClick={(e) => {
               e.preventDefault();

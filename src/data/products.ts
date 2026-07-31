@@ -29,6 +29,7 @@ export interface Brand {
   id: number;
   name: string;
   logo: string;
+  color: string;
 }
 
 export interface FlashDeal {
@@ -105,23 +106,25 @@ export const productCategories = [
 ];
 
 export const brands: Brand[] = [
-  { id: 1, name: "Apple", logo: brandLogos.Apple },
-  { id: 2, name: "Samsung", logo: brandLogos.Samsung },
-  { id: 3, name: "Xiaomi", logo: brandLogos.Xiaomi },
-  { id: 4, name: "Redmi", logo: brandLogos.Redmi },
-  { id: 5, name: "POCO", logo: brandLogos.POCO },
-  { id: 6, name: "Huawei", logo: brandLogos.Huawei },
-  { id: 7, name: "Honor", logo: brandLogos.Honor },
-  { id: 8, name: "Oppo", logo: brandLogos.Oppo },
-  { id: 9, name: "Realme", logo: brandLogos.Realme },
-  { id: 10, name: "Vivo", logo: brandLogos.Vivo },
-  { id: 11, name: "OnePlus", logo: brandLogos.OnePlus },
-  { id: 12, name: "Google Pixel", logo: brandLogos["Google Pixel"] },
-  { id: 13, name: "Motorola", logo: brandLogos.Motorola },
-  { id: 14, name: "Nokia", logo: brandLogos.Nokia },
-  { id: 15, name: "Infinix", logo: brandLogos.Infinix },
-  { id: 16, name: "Tecno", logo: brandLogos.Tecno },
+  { id: 1, name: "Apple", logo: brandLogos.Apple, color: "#a2aaad" },
+  { id: 2, name: "Samsung", logo: brandLogos.Samsung, color: "#1428a0" },
+  { id: 3, name: "Xiaomi", logo: brandLogos.Xiaomi, color: "#ff6900" },
+  { id: 4, name: "Redmi", logo: brandLogos.Redmi, color: "#ff6900" },
+  { id: 5, name: "POCO", logo: brandLogos.POCO, color: "#ff6900" },
+  { id: 6, name: "Huawei", logo: brandLogos.Huawei, color: "#cf0a2c" },
+  { id: 7, name: "Honor", logo: brandLogos.Honor, color: "#7a5cf0" },
+  { id: 8, name: "Oppo", logo: brandLogos.Oppo, color: "#047a4a" },
+  { id: 9, name: "Realme", logo: brandLogos.Realme, color: "#ffd500" },
+  { id: 10, name: "Vivo", logo: brandLogos.Vivo, color: "#415fff" },
+  { id: 11, name: "OnePlus", logo: brandLogos.OnePlus, color: "#eb0028" },
+  { id: 12, name: "Google Pixel", logo: brandLogos["Google Pixel"], color: "#4285f4" },
+  { id: 13, name: "Motorola", logo: brandLogos.Motorola, color: "#00b4f0" },
+  { id: 14, name: "Nokia", logo: brandLogos.Nokia, color: "#124191" },
+  { id: 15, name: "Infinix", logo: brandLogos.Infinix, color: "#24b67e" },
+  { id: 16, name: "Tecno", logo: brandLogos.Tecno, color: "#7a3ff2" },
 ];
+
+export const brandColorsByName = Object.fromEntries(brands.map((b) => [b.name, b.color]));
 
 export const products: Product[] = [
   {

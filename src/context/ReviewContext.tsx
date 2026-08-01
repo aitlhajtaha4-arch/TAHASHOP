@@ -34,13 +34,11 @@ function saveLocalReviews(reviews: Review[]) {
 }
 
 export function ReviewProvider({ children }: { children: ReactNode }) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setReviews(loadLocalReviews());
-    setLoaded(true);
-  }, []);
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    if (typeof window === "undefined") return [];
+    return loadLocalReviews();
+  });
+  const [loaded] = useState(true);
 
   useEffect(() => {
     if (loaded) saveLocalReviews(reviews);

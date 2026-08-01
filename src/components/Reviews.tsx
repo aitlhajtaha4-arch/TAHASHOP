@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Heart, ChevronDown, BadgeCheck, MessageCircle, Plus, X } from "lucide-react";
 import { useReviews } from "@/context/ReviewContext";
@@ -24,14 +24,19 @@ type SortMode = "newest" | "oldest" | "highest" | "lowest";
 
 export default function Reviews() {
   const { reviews, addReview } = useReviews();
-  const [likes, setLikes] = useState<Record<string, number>>({});
+  const [likes, setLikes] = useState<Record<string, number>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem("review-likes") || "{}");
+    } catch {
+      return {};
+    }
+  });
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [sort, setSort] = useState<SortMode>("newest");
   const [showCount, setShowCount] = useState(6);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", rating: 5, content: "", productId: 1 });
-
-  useEffect(() => { setLikes(loadLikes()); }, []);
 
   const allReviews = reviews.length > 0 ? reviews : seedReviews.map((r) => r);
 
@@ -172,7 +177,7 @@ export default function Reviews() {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary shrink-0">
-                        {"initials" in review ? (review as any).initials : review.name.charAt(0)}
+                        {("initials" in review ? (review as { initials?: string }).initials : review.name.charAt(0))}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Edit3, Trash2, Search } from "lucide-react";
 import { getAllProducts, deleteProduct, createProduct, updateProduct } from "@/app/actions";
+import { getCategories } from "../actions";
 import type { Product } from "@/data/products";
 
 const defaultProduct = {
@@ -36,17 +37,28 @@ export default function AdminProducts() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultProduct);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllProducts();
-      setProducts(data);
-    } catch {}
-    setLoading(false);
+  const load = () => {
+    getAllProducts()
+      .then(setProducts)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    getCategories()
+      .then((cats) => {
+        const options = cats
+          .filter((c) => !["all", "new", "used", "bestsellers"].includes(c.slug))
+          .map((c) => c.slug);
+        const withMidRange = options.includes("mid-range") ? options : [...options, "mid-range"];
+        setCategoryOptions(withMidRange);
+      })
+      .catch(() => setCategoryOptions(["flagship", "mid-range", "budget", "gaming"]));
+  }, []);
 
   const filtered = products.filter(
     (p) => p.name.includes(search) || p.brand.includes(search) || p.category.includes(search)
@@ -146,10 +158,12 @@ export default function AdminProducts() {
             <div>
               <label className="mb-1 block text-xs font-bold text-foreground">الفئة</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="flagship">رائدة</option>
-                <option value="mid-range">متوسطة</option>
-                <option value="budget">اقتصادية</option>
-                <option value="gaming">ألعاب</option>
+                {categoryOptions.length === 0 && <option value="flagship">رائدة</option>}
+                {categoryOptions.map((slug) => (
+                  <option key={slug} value={slug}>
+                    {slug === "flagship" ? "رائدة" : slug === "mid-range" ? "متوسطة" : slug === "budget" ? "اقتصادية" : slug === "gaming" ? "ألعاب" : slug}
+                  </option>
+                ))}
               </select>
             </div>
             <div>

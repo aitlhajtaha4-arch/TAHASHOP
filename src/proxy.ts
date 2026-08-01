@@ -29,20 +29,30 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (!user && pathname.startsWith("/admin")) {
+  if (pathname === "/admin" || pathname === "/admin/") {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  }
+
+  if (pathname === "/admin/login") {
+    return NextResponse.redirect(
+      new URL(user ? "/admin/dashboard" : "/login", request.url)
+    );
+  }
+
+  if (pathname.startsWith("/admin") && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
+    url.pathname = "/login";
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === "/admin/login") {
-    return NextResponse.redirect(new URL("/admin", request.url));
+  if (pathname === "/login" && user) {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/login"],
 };

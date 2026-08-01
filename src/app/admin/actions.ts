@@ -1,67 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPayPalAccessToken, type PayPalMode } from "@/lib/payments";
-import { cookies } from "next/headers";
-
-function mapAuthError(error: { message?: string }): string {
-  const msg = (error.message || "").toLowerCase();
-  if (msg.includes("invalid login credentials")) return "البريد الإلكتروني أو كلمة المرور غير صحيحة";
-  if (msg.includes("email not confirmed")) return "لم يتم تأكيد البريد الإلكتروني بعد";
-  if (msg.includes("invalid email")) return "البريد الإلكتروني غير صالح";
-  if (msg.includes("rate limit")) return "محاولات كثيرة جداً — انتظر دقيقة ثم أعد المحاولة";
-  return error.message || "خطأ في تسجيل الدخول";
-}
-
-export async function signInAdmin(email: string, password: string, remember = false) {
-  const cookieStore = await cookies();
-  cookieStore.set("rememberAdmin", remember ? "1" : "0", {
-    path: "/",
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: remember ? 60 * 60 * 24 * 30 : undefined,
-  });
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(mapAuthError(error));
-
-  const { data: admin, error: adminError } = await supabase
-    .from("admins")
-    .select("*")
-    .eq("id", data.user.id)
-    .single();
-  if (adminError) {
-    await supabase.auth.signOut();
-    throw new Error(
-      "تعذر التحقق من صلاحية المشرف. شغّل ملف إعداد الأدمن الكامل في Supabase (Database ← SQL Editor) ثم أعد المحاولة."
-    );
-  }
-  if (!admin) {
-    await supabase.auth.signOut();
-    throw new Error(
-      "هذا الحساب غير مسجّل كمشرف بعد. في Supabase افتح Database ← SQL Editor وشغّل هذا السطر فقط:\n" +
-        `insert into public.admins (id, email, name) values ('${data.user.id}', '${email}', 'Admin') on conflict (id) do nothing;`
-    );
-  }
-  return admin;
-}
-
-export async function signOutAdmin() {
-  const cookieStore = await cookies();
-  cookieStore.delete("rememberAdmin");
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-}
-
-export async function getAdminProfile() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: admin } = await supabase.from("admins").select("*").eq("id", user.id).single();
-  return admin || null;
-}
+import { getAdminProfile } from "@/app/auth/actions";
 
 export async function getPaymentSettings() {
   const admin = await getAdminProfile();
@@ -113,4 +54,107 @@ export async function testPayPalConnection() {
       message: err instanceof Error ? err.message : "تعذر الاتصال بـ PayPal",
     };
   }
+}
+
+export type CategoryRow = {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export async function getCategories() {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) throw error;
+  return (data || []) as CategoryRow[];
+}
+
+export async function createCategory(data: { name: string; slug: string; icon: string; sort_order: number; is_active: boolean }) {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  if (!data.name.trim()) throw new Error("أدخل اسم الفئة");
+  if (!data.slug.trim()) throw new Error("أدخل المعرّف (slug)");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("categories").insert({
+    name: data.name.trim(),
+    slug: data.slug.trim().toLowerCase().replace(/\s+/g, "-"),
+    icon: data.icon || "🏷️",
+    sort_order: data.sort_order,
+    is_active: data.is_active,
+  });
+  if (error) throw error;
+  return { success: true };
+}
+
+export async function updateCategory(id: number, data: { name: string; slug: string; icon: string; sort_order: number; is_active: boolean }) {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  if (!data.name.trim()) throw new Error("أدخل اسم الفئة");
+  if (!data.slug.trim()) throw new Error("أدخل المعرّف (slug)");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("categories").update({
+    name: data.name.trim(),
+    slug: data.slug.trim().toLowerCase().replace(/\s+/g, "-"),
+    icon: data.icon || "🏷️",
+    sort_order: data.sort_order,
+    is_active: data.is_active,
+  }).eq("id", id);
+  if (error) throw error;
+  return { success: true };
+}
+
+export async function deleteCategory(id: number) {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) throw error;
+  return { success: true };
+}
+
+export type StoreSettingsRow = {
+  store_name: string;
+  tagline: string;
+  description: string;
+  phone: string;
+  email: string;
+  address: string;
+  whatsapp: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  shipping_fee: number;
+  free_shipping_threshold: number;
+  support_hours: string;
+};
+
+export async function getStoreSettings() {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.from("store_settings").select("*").eq("id", 1).single();
+  if (error) throw error;
+  return data as StoreSettingsRow;
+}
+
+export async function saveStoreSettings(settings: StoreSettingsRow) {
+  const admin = await getAdminProfile();
+  if (!admin) throw new Error("غير مصرح");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("store_settings").upsert({
+    id: 1,
+    ...settings,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+  return { success: true };
 }

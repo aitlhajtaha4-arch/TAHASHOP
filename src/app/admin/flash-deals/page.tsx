@@ -27,16 +27,21 @@ export default function AdminFlashDeals() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultDeal);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [now, setNow] = useState(0);
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const dealsData = await getAllFlashDeals().catch(() => []);
-      const productsData = await getAllProducts().catch(() => []);
-      setDeals(dealsData);
-      setProducts(productsData);
-    } catch {}
-    setLoading(false);
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const load = () => {
+    Promise.all([getAllFlashDeals().catch(() => []), getAllProducts().catch(() => [])])
+      .then(([dealsData, productsData]) => {
+        setDeals(dealsData);
+        setProducts(productsData);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
@@ -131,8 +136,7 @@ export default function AdminFlashDeals() {
   };
 
   const isActiveNow = (deal: FlashDeal) => {
-    const now = Date.now();
-    return deal.isActive && deal.endsAt > now;
+    return deal.isActive && (now === 0 || deal.endsAt > now);
   };
 
   return (

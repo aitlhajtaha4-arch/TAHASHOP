@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -7,47 +7,47 @@ import { X, Search as SearchIcon, SlidersHorizontal, Clock, Trash2 } from "lucid
 import type { Product, Accessory } from "@/data/products";
 
 const brandAliases: Record<string, string[]> = {
-  Apple: ["ايبون", "ايفون", "آيفون", "ابل", "أبل", "iphone", "apple", "ايباد"],
-  Samsung: ["سامسونج", "سامسونغ", "سامسونك", "سام", "غالاكسي", "galaxy", "samsung", "sams", "s24", "s25", "s23", "التيرا", "اولترا", "ultra"],
-  Xiaomi: ["شاومي", "شياومي", "شاوم", "xiaomi", "xiomi", "مي", "mi"],
-  Redmi: ["ريدمي", "ريديمي", "ردمي", "redmi", "نوت", "note"],
-  POCO: ["بوكو", "poco", "poko"],
-  Huawei: ["هواوي", "هواوي", "huawei"],
-  Honor: ["اونور", "ونور", "honor", "هنور"],
-  Oppo: ["اوبو", "oppo"],
-  Realme: ["ريلمي", "ريلم", "realme", "realm"],
-  Vivo: ["فيفو", "vivo"],
-  OnePlus: ["ون بلس", "ون بلاس", "ون", "oneplus", "one"],
-  "Google Pixel": ["بيكسل", "جوجل", "بكسل", "pixel", "google", "pix", "gmail"],
-  Motorola: ["موتورولا", "موتور", "motorola", "moto", "موتو"],
-  Nokia: ["نوكيا", "nokia"],
-  Infinix: ["انفينكس", "انفينيكس", "infinix"],
-  Tecno: ["تكنو", "techno", "tecno", "كامون", "camon"],
-  Nothing: ["ناثينج", "nothing", "ناثنق"],
+  Apple: ["Ø§ÙŠØ¨ÙˆÙ†", "Ø§ÙŠÙÙˆÙ†", "Ø¢ÙŠÙÙˆÙ†", "Ø§Ø¨Ù„", "Ø£Ø¨Ù„", "iphone", "apple", "Ø§ÙŠØ¨Ø§Ø¯"],
+  Samsung: ["Ø³Ø§Ù…Ø³ÙˆÙ†Ø¬", "Ø³Ø§Ù…Ø³ÙˆÙ†Øº", "Ø³Ø§Ù…Ø³ÙˆÙ†Ùƒ", "Ø³Ø§Ù…", "ØºØ§Ù„Ø§ÙƒØ³ÙŠ", "galaxy", "samsung", "sams", "s24", "s25", "s23", "Ø§Ù„ØªÙŠØ±Ø§", "Ø§ÙˆÙ„ØªØ±Ø§", "ultra"],
+  Xiaomi: ["Ø´Ø§ÙˆÙ…ÙŠ", "Ø´ÙŠØ§ÙˆÙ…ÙŠ", "Ø´Ø§ÙˆÙ…", "xiaomi", "xiomi", "Ù…ÙŠ", "mi"],
+  Redmi: ["Ø±ÙŠØ¯Ù…ÙŠ", "Ø±ÙŠØ¯ÙŠÙ…ÙŠ", "Ø±Ø¯Ù…ÙŠ", "redmi", "Ù†ÙˆØª", "note"],
+  POCO: ["Ø¨ÙˆÙƒÙˆ", "poco", "poko"],
+  Huawei: ["Ù‡ÙˆØ§ÙˆÙŠ", "Ù‡ÙˆØ§ÙˆÙŠ", "huawei"],
+  Honor: ["Ø§ÙˆÙ†ÙˆØ±", "ÙˆÙ†ÙˆØ±", "honor", "Ù‡Ù†ÙˆØ±"],
+  Oppo: ["Ø§ÙˆØ¨Ùˆ", "oppo"],
+  Realme: ["Ø±ÙŠÙ„Ù…ÙŠ", "Ø±ÙŠÙ„Ù…", "realme", "realm"],
+  Vivo: ["ÙÙŠÙÙˆ", "vivo"],
+  OnePlus: ["ÙˆÙ† Ø¨Ù„Ø³", "ÙˆÙ† Ø¨Ù„Ø§Ø³", "ÙˆÙ†", "oneplus", "one"],
+  "Google Pixel": ["Ø¨ÙŠÙƒØ³Ù„", "Ø¬ÙˆØ¬Ù„", "Ø¨ÙƒØ³Ù„", "pixel", "google", "pix", "gmail"],
+  Motorola: ["Ù…ÙˆØªÙˆØ±ÙˆÙ„Ø§", "Ù…ÙˆØªÙˆØ±", "motorola", "moto", "Ù…ÙˆØªÙˆ"],
+  Nokia: ["Ù†ÙˆÙƒÙŠØ§", "nokia"],
+  Infinix: ["Ø§Ù†ÙÙŠÙ†ÙƒØ³", "Ø§Ù†ÙÙŠÙ†ÙŠÙƒØ³", "infinix"],
+  Tecno: ["ØªÙƒÙ†Ùˆ", "techno", "tecno", "ÙƒØ§Ù…ÙˆÙ†", "camon"],
+  Nothing: ["Ù†Ø§Ø«ÙŠÙ†Ø¬", "nothing", "Ù†Ø§Ø«Ù†Ù‚"],
 };
 
 function normalizeArabic(text: string): string {
   return text
-    .replace(/[ًٌٍَُِّْ]/g, "")
-    .replace(/ى/g, "ي")
-    .replace(/ة/g, "ه")
-    .replace(/ؤ/g, "و")
-    .replace(/ئ/g, "ي")
-    .replace(/إ/g, "ا")
-    .replace(/أ/g, "ا")
-    .replace(/آ/g, "ا")
+    .replace(/[Ù‹ÙŒÙÙŽÙÙÙ‘Ù’]/g, "")
+    .replace(/Ù‰/g, "ÙŠ")
+    .replace(/Ø©/g, "Ù‡")
+    .replace(/Ø¤/g, "Ùˆ")
+    .replace(/Ø¦/g, "ÙŠ")
+    .replace(/Ø¥/g, "Ø§")
+    .replace(/Ø£/g, "Ø§")
+    .replace(/Ø¢/g, "Ø§")
     .toLowerCase();
 }
 
 function normalizeChar(c: string): string {
   const map: Record<string, string> = {
-    "إ": "ا", "أ": "ا", "آ": "ا", "ى": "ي", "ة": "ه", "ؤ": "و", "ئ": "ي",
-    "é": "e", "è": "e", "ê": "e", "ë": "e",
-    "à": "a", "â": "a", "ä": "a",
-    "ù": "u", "û": "u", "ü": "u",
-    "ô": "o", "ö": "o",
-    "î": "i", "ï": "i",
-    "ç": "c",
+    "Ø¥": "Ø§", "Ø£": "Ø§", "Ø¢": "Ø§", "Ù‰": "ÙŠ", "Ø©": "Ù‡", "Ø¤": "Ùˆ", "Ø¦": "ÙŠ",
+    "Ã©": "e", "Ã¨": "e", "Ãª": "e", "Ã«": "e",
+    "Ã ": "a", "Ã¢": "a", "Ã¤": "a",
+    "Ã¹": "u", "Ã»": "u", "Ã¼": "u",
+    "Ã´": "o", "Ã¶": "o",
+    "Ã®": "i", "Ã¯": "i",
+    "Ã§": "c",
   };
   return map[c] || c;
 }
@@ -122,18 +122,6 @@ function getRecent(): string[] {
   catch { return []; }
 }
 
-function addRecent(q: string) {
-  if (!q.trim()) return;
-  const list = getRecent().filter((s) => s !== q);
-  list.unshift(q);
-  if (list.length > 5) list.length = 5;
-  localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-}
-
-function clearRecent() {
-  localStorage.removeItem(RECENT_KEY);
-}
-
 function highlightText(text: string, query: string) {
   if (!query.trim()) return text;
   const [qEn] = getSearchTexts(query);
@@ -150,7 +138,7 @@ function highlightText(text: string, query: string) {
 
 type SearchItem = { type: "product"; data: Product } | { type: "accessory"; data: Accessory };
 
-const popularSearches = ["iPhone 16 Pro Max", "Samsung Galaxy S25 Ultra", "Google Pixel 10", "Xiaomi Redmi Note 14", "512 GB", "شاحن سريع", "سماعات بلوتوث"];
+const popularSearches = ["iPhone 16 Pro Max", "Samsung Galaxy S25 Ultra", "Google Pixel 10", "Xiaomi Redmi Note 14", "512 GB", "Ø´Ø§Ø­Ù† Ø³Ø±ÙŠØ¹", "Ø³Ù…Ø§Ø¹Ø§Øª Ø¨Ù„ÙˆØªÙˆØ«"];
 
 interface Props {
   open: boolean;
@@ -169,13 +157,17 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
   const [maxPrice, setMaxPrice] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    return getRecent();
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const [lastOpen, setLastOpen] = useState(open);
+  if (open !== lastOpen) {
+    setLastOpen(open);
     if (open) {
-      setRecentSearches(getRecent());
       setSelectedIndex(-1);
       setQuery("");
       setBrand("");
@@ -185,9 +177,47 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
       setMinPrice("");
       setMaxPrice("");
       setShowFilters(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      const t = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(t);
     }
   }, [open]);
+
+  const filtersKey = `${query}|${brand}|${ram}|${storage}|${color}|${minPrice}|${maxPrice}`;
+  const [lastFiltersKey, setLastFiltersKey] = useState(filtersKey);
+  if (filtersKey !== lastFiltersKey) {
+    setLastFiltersKey(filtersKey);
+    setSelectedIndex(-1);
+  }
+
+  const persistRecent = useCallback((next: string[]) => {
+    try {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    } catch {}
+  }, []);
+
+  const addRecentLocal = useCallback(
+    (q: string) => {
+      if (!q.trim()) return;
+      setRecentSearches((prev) => {
+        const next = [q, ...prev.filter((s) => s !== q)].slice(0, 5);
+        persistRecent(next);
+        return next;
+      });
+    },
+    [persistRecent]
+  );
+
+  const clearRecentLocal = useCallback(() => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem(RECENT_KEY);
+    } catch {}
+  }, []);
 
   const uniqueBrands = useMemo(() => [...new Set(products.map((p) => p.brand))], [products]);
   const uniqueRams = useMemo(() => [...new Set(products.map((p) => p.ram))], [products]);
@@ -232,10 +262,6 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
   }, [query, brand, ram, storage, color, minPrice, maxPrice, products, accessories]);
 
   useEffect(() => {
-    setSelectedIndex(-1);
-  }, [query, brand, ram, storage, color, minPrice, maxPrice]);
-
-  useEffect(() => {
     if (listRef.current && selectedIndex >= 0) {
       const el = listRef.current.children[selectedIndex] as HTMLElement | undefined;
       el?.scrollIntoView({ block: "nearest" });
@@ -251,7 +277,7 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
       setSelectedIndex((prev) => Math.max(prev - 1, 0));
     } else if (e.key === "Enter") {
       if (selectedIndex >= 0 && selectedIndex < results.length && query.trim()) {
-        addRecent(query.trim());
+        addRecentLocal(query.trim());
         const item = results[selectedIndex];
         if (item.type === "product") {
           window.location.href = `/product/${item.data.id}`;
@@ -263,16 +289,16 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
     } else if (e.key === "Escape") {
       onClose();
     }
-  }, [results, selectedIndex, query, onClose]);
+  }, [results, selectedIndex, query, onClose, addRecentLocal]);
 
   const handleResultClick = useCallback((item: SearchItem) => {
-    if (query.trim()) addRecent(query.trim());
-  }, [query]);
+    if (query.trim()) addRecentLocal(query.trim());
+  }, [query, addRecentLocal]);
 
   const handlePopularClick = useCallback((term: string) => {
     setQuery(term);
-    addRecent(term);
-  }, []);
+    addRecentLocal(term);
+  }, [addRecentLocal]);
 
   const handleRecentClick = useCallback((term: string) => {
     setQuery(term);
@@ -294,7 +320,7 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="ابحث بالعربي أو الإنجليزي..."
+                  placeholder="Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø¹Ø±Ø¨ÙŠ Ø£Ùˆ Ø§Ù„Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ..."
                   className="flex-1 bg-transparent text-base sm:text-lg !text-[#111111] dark:!text-white placeholder-[#9ca3af] dark:placeholder-[#6b7280] caret-[#2563eb] focus:outline-none min-w-0"
                 />
                 <button onClick={() => setShowFilters(!showFilters)} className={`flex-shrink-0 rounded-lg p-2 transition-colors ${showFilters ? "bg-primary text-white" : "text-text-muted hover:bg-surface"}`}>
@@ -310,27 +336,27 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                   <div>
                     <p className="mb-2.5 text-xs font-semibold text-text-muted flex items-center gap-1.5">
                       <Clock className="h-3 w-3" />
-                      عمليات بحث حديثة
+                      Ø¹Ù…Ù„ÙŠØ§Øª Ø¨Ø­Ø« Ø­Ø¯ÙŠØ«Ø©
                     </p>
                     {recentSearches.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
                         {recentSearches.map((term) => (
                           <button key={term} onClick={() => handleRecentClick(term)} className="group rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-primary/30 hover:text-primary flex items-center gap-1.5">
                             {term}
-                            <span className="opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                            <span className="opacity-0 group-hover:opacity-100 transition-opacity">Ã—</span>
                           </button>
                         ))}
-                        <button onClick={clearRecent} className="rounded-full px-3 py-1.5 text-xs text-red-500/60 hover:text-red-500 transition-colors flex items-center gap-1">
+                        <button onClick={clearRecentLocal} className="rounded-full px-3 py-1.5 text-xs text-red-500/60 hover:text-red-500 transition-colors flex items-center gap-1">
                           <Trash2 className="h-3 w-3" />
-                          مسح
+                          Ù…Ø³Ø­
                         </button>
                       </div>
                     ) : (
-                      <p className="text-xs text-text-muted/50">لا توجد عمليات بحث سابقة</p>
+                      <p className="text-xs text-text-muted/50">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ù…Ù„ÙŠØ§Øª Ø¨Ø­Ø« Ø³Ø§Ø¨Ù‚Ø©</p>
                     )}
                   </div>
                   <div>
-                    <p className="mb-2.5 text-xs font-semibold text-text-muted">عمليات بحث شائعة</p>
+                    <p className="mb-2.5 text-xs font-semibold text-text-muted">Ø¹Ù…Ù„ÙŠØ§Øª Ø¨Ø­Ø« Ø´Ø§Ø¦Ø¹Ø©</p>
                     <div className="flex flex-wrap gap-1.5">
                       {popularSearches.map((term) => (
                         <button key={term} onClick={() => handlePopularClick(term)} className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-primary/30 hover:text-primary">
@@ -339,7 +365,7 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                       ))}
                     </div>
                   </div>
-                  <p className="text-[11px] text-text-muted/40 pt-1">استخدم ↑ ↓ للتنقل و ↵ للاختيار</p>
+                  <p className="text-[11px] text-text-muted/40 pt-1">Ø§Ø³ØªØ®Ø¯Ù… â†‘ â†“ Ù„Ù„ØªÙ†Ù‚Ù„ Ùˆ â†µ Ù„Ù„Ø§Ø®ØªÙŠØ§Ø±</p>
                 </div>
               )}
 
@@ -348,23 +374,23 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                   <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-b border-border">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
                       <select value={brand} onChange={(e) => setBrand(e.target.value)} className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none">
-                        <option value="">جميع العلامات</option>
+                        <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¹Ù„Ø§Ù…Ø§Øª</option>
                         {uniqueBrands.map((b) => (<option key={b} value={b}>{b}</option>))}
                       </select>
                       <select value={ram} onChange={(e) => setRam(e.target.value)} className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none">
-                        <option value="">جميع الرام</option>
+                        <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø±Ø§Ù…</option>
                         {uniqueRams.map((r) => (<option key={r} value={r}>{r}</option>))}
                       </select>
                       <select value={storage} onChange={(e) => setStorage(e.target.value)} className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none">
-                        <option value="">جميع التخزين</option>
+                        <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†</option>
                         {uniqueStorage.map((s) => (<option key={s} value={s}>{s}</option>))}
                       </select>
                       <select value={color} onChange={(e) => setColor(e.target.value)} className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none">
-                        <option value="">جميع الألوان</option>
+                        <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ù„ÙˆØ§Ù†</option>
                         {uniqueColors.map((c) => (<option key={c} value={c}>{c}</option>))}
                       </select>
-                      <input type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="السعر من" className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-text-muted/50 focus:border-primary focus:outline-none" />
-                      <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="السعر إلى" className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-text-muted/50 focus:border-primary focus:outline-none" />
+                      <input type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Ø§Ù„Ø³Ø¹Ø± Ù…Ù†" className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-text-muted/50 focus:border-primary focus:outline-none" />
+                      <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Ø§Ù„Ø³Ø¹Ø± Ø¥Ù„Ù‰" className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-text-muted/50 focus:border-primary focus:outline-none" />
                     </div>
                   </motion.div>
                 )}
@@ -378,8 +404,8 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         <circle cx="10" cy="10" r="3" fill="currentColor" opacity={0.08} />
                       </svg>
-                      <p className="text-sm font-medium text-text-muted">لا توجد نتائج</p>
-                      <p className="text-xs text-text-muted/40 mt-0.5">جرّب كلمة بحث مختلفة</p>
+                      <p className="text-sm font-medium text-text-muted">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬</p>
+                      <p className="text-xs text-text-muted/40 mt-0.5">Ø¬Ø±Ù‘Ø¨ ÙƒÙ„Ù…Ø© Ø¨Ø­Ø« Ù…Ø®ØªÙ„ÙØ©</p>
                     </div>
                   ) : (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }} className="p-2">
@@ -398,9 +424,9 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                               <img src={p.image} alt={p.name} className="h-12 w-12 rounded-lg object-cover flex-shrink-0" loading="lazy" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold truncate">{highlightText(p.name, query)}</p>
-                                <p className="text-xs text-text-muted">{p.brand} • {p.ram} • {p.storage}</p>
+                                <p className="text-xs text-text-muted">{p.brand} â€¢ {p.ram} â€¢ {p.storage}</p>
                               </div>
-                              <p className="text-sm font-bold text-primary whitespace-nowrap flex-shrink-0">{p.price.toLocaleString()} درهم</p>
+                              <p className="text-sm font-bold text-primary whitespace-nowrap flex-shrink-0">{p.price.toLocaleString()} Ø¯Ø±Ù‡Ù…</p>
                             </Link>
                           );
                         }
@@ -416,14 +442,14 @@ export default function SearchOverlay({ open, onClose, products = [], accessorie
                             <img src={a.image} alt={a.name} className="h-12 w-12 rounded-lg object-cover flex-shrink-0" loading="lazy" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-bold truncate">{highlightText(a.name, query)}</p>
-                              <p className="text-xs text-text-muted">إكسسوار • {a.brand}</p>
+                              <p className="text-xs text-text-muted">Ø¥ÙƒØ³Ø³ÙˆØ§Ø± â€¢ {a.brand}</p>
                             </div>
-                            <p className="text-sm font-bold text-primary whitespace-nowrap flex-shrink-0">{a.price.toLocaleString()} درهم</p>
+                            <p className="text-sm font-bold text-primary whitespace-nowrap flex-shrink-0">{a.price.toLocaleString()} Ø¯Ø±Ù‡Ù…</p>
                           </Link>
                         );
                       })}
                       {results.length > 15 && (
-                        <p className="text-xs text-text-muted/50 text-center py-2">و {results.length - 15} نتيجة أخرى...</p>
+                        <p className="text-xs text-text-muted/50 text-center py-2">Ùˆ {results.length - 15} Ù†ØªÙŠØ¬Ø© Ø£Ø®Ø±Ù‰...</p>
                       )}
                     </motion.div>
                   )}

@@ -3,18 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Star, Bell, LogOut, Menu, X, ChevronLeft, Zap, Headphones, Settings } from "lucide-react";
-import { getAdminProfile, signOutAdmin } from "./actions";
+import { LayoutDashboard, Package, ShoppingCart, Star, Bell, LogOut, Menu, X, ChevronLeft, Zap, Headphones, Settings, Tags, Store } from "lucide-react";
+import { getAdminProfile, signOutAdmin } from "@/app/auth/actions";
 import { useRouter } from "next/navigation";
 
 const navItems = [
-  { href: "/admin", label: "الرئيسية", icon: LayoutDashboard },
+  { href: "/admin/dashboard", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/admin/products", label: "المنتجات", icon: Package },
+  { href: "/admin/categories", label: "الفئات", icon: Tags },
   { href: "/admin/accessories", label: "الإكسسوارات", icon: Headphones },
   { href: "/admin/flash-deals", label: "عروض الوميض", icon: Zap },
   { href: "/admin/orders", label: "الطلبات", icon: ShoppingCart },
   { href: "/admin/reviews", label: "التقييمات", icon: Star },
   { href: "/admin/notifications", label: "الإشعارات", icon: Bell },
+  { href: "/admin/settings/store", label: "إعدادات المتجر", icon: Store },
   { href: "/admin/settings/payments", label: "إعدادات الدفع", icon: Settings },
 ];
 
@@ -29,20 +31,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     getAdminProfile()
       .then((profile) => {
         if (!profile) {
-          router.replace("/admin/login");
+          router.replace("/login");
           return;
         }
         setIsAdmin(true);
       })
       .catch(() => {
-        router.replace("/admin/login");
+        router.replace("/login");
       })
       .finally(() => setChecking(false));
   }, [router]);
-
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
 
   if (checking || !isAdmin) {
     return (
@@ -57,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = async () => {
     await signOutAdmin();
-    router.push("/admin/login");
+    router.push("/login");
   };
 
   return (
@@ -67,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`fixed top-0 right-0 z-50 h-full w-64 border-l border-border bg-surface transition-transform lg:translate-x-0 lg:static lg:z-auto ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-border p-4">
-            <Link href="/admin" className="flex items-center gap-2">
+            <Link href="/admin/dashboard" className="flex items-center gap-2">
               <span className="text-lg font-black text-foreground">TechVault</span>
               <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Admin</span>
             </Link>

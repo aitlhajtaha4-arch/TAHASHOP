@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { mapProduct, mapFlashDeal, mapReview, mapAccessory } from "@/lib/supabase/mappers";
 import { brandLogos } from "@/data/brandLogos";
-import { brandColorsByName, type Brand } from "@/data/products";
+import { brandColorsByName, productCategories, type Brand } from "@/data/products";
 import { createPayPalOrder, type PayPalSettings } from "@/lib/payments";
 
 export async function getProducts(brand?: string, category?: string) {
@@ -253,5 +253,72 @@ export async function getStats() {
     totalRevenue,
     totalReviews: reviews.count || 0,
     recentOrders: orders.data?.slice(0, 5) || [],
+  };
+}
+
+export type StoreCategory = { id: string; label: string; icon: string };
+
+export async function getCategories(): Promise<StoreCategory[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("slug, name, icon")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("id", { ascending: true });
+    if (error) throw error;
+    if (data && data.length > 0) {
+      return data.map((c: { slug: string; name: string; icon: string }) => ({
+        id: c.slug,
+        label: c.name,
+        icon: c.icon || "🏷️",
+      }));
+    }
+  } catch {
+    // table missing — fall through to static list
+  }
+  return productCategories;
+}
+
+export type StoreInfo = {
+  store_name: string;
+  tagline: string;
+  description: string;
+  phone: string;
+  email: string;
+  address: string;
+  whatsapp: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  shipping_fee: number;
+  free_shipping_threshold: number;
+  support_hours: string;
+};
+
+export async function getStoreSettings(): Promise<StoreInfo> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("store_settings").select("*").eq("id", 1).single();
+    if (!error && data) return data as StoreInfo;
+  } catch {
+    // table missing — use defaults
+  }
+  return {
+    store_name: "TechVault",
+    tagline: "وجهتك المثالية لأحدث الهواتف الذكية",
+    description:
+      "وجهتك المثالية لشراء أحدث الهواتف الذكية والإكسسوارات في المغرب. ضمان أصلي، توصيل سريع، وأسعار استثنائية.",
+    phone: "",
+    email: "",
+    address: "",
+    whatsapp: "",
+    facebook: "",
+    instagram: "",
+    tiktok: "",
+    shipping_fee: 30,
+    free_shipping_threshold: 300,
+    support_hours: "من الاثنين إلى السبت: 9 صباحاً - 9 مساءً",
   };
 }

@@ -26,13 +26,11 @@ export default function AdminAccessories() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultAccessory);
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllAccessories().catch(() => []);
-      setAccessories(data);
-    } catch {}
-    setLoading(false);
+  const load = () => {
+    getAllAccessories()
+      .then(setAccessories)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);

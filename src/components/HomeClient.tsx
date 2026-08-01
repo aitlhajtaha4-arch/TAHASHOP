@@ -15,13 +15,28 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import { productCategories, type Product, type FlashDeal, type Accessory } from "@/data/products";
+import type { StoreCategory, StoreInfo } from "@/app/actions";
 import { motion } from "framer-motion";
 
-export default function HomeClient({ initialProducts, initialDeals, initialAccessories }: { initialProducts: Product[]; initialDeals: FlashDeal[]; initialAccessories: Accessory[] }) {
+export default function HomeClient({
+  initialProducts,
+  initialDeals,
+  initialAccessories,
+  categories,
+  storeSettings,
+}: {
+  initialProducts: Product[];
+  initialDeals: FlashDeal[];
+  initialAccessories: Accessory[];
+  categories?: StoreCategory[];
+  storeSettings?: StoreInfo | null;
+}) {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+
+  const activeCategories = (categories && categories.length > 0 ? categories : productCategories);
 
   const filtered = useMemo(() => {
     let result = initialProducts;
@@ -38,6 +53,8 @@ export default function HomeClient({ initialProducts, initialDeals, initialAcces
       result = result.filter((p) => p.category === "gaming");
     } else if (categoryFilter === "bestsellers") {
       result = result.filter((p) => p.badge === "الأكثر مبيعاً");
+    } else if (categoryFilter !== "all") {
+      result = result.filter((p) => p.category === categoryFilter);
     }
 
     if (sortBy === "price-low") result = [...result].sort((a, b) => a.price - b.price);
@@ -73,7 +90,7 @@ export default function HomeClient({ initialProducts, initialDeals, initialAcces
             </motion.div>
 
             <div className="mb-4 flex overflow-x-auto gap-1.5 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-none">
-              {productCategories.map((cat) => (
+              {activeCategories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategoryFilter(cat.id)}
@@ -125,7 +142,7 @@ export default function HomeClient({ initialProducts, initialDeals, initialAcces
         <Newsletter />
       </main>
 
-      <Footer />
+      <Footer settings={storeSettings} />
     </>
   );
 }

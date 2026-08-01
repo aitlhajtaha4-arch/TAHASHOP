@@ -5,20 +5,20 @@ import { motion } from "framer-motion";
 import { flashDeals as defaultFlashDeals, type FlashDeal } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
+function calcTime(endsAt: number) {
+  const diff = Math.max(0, endsAt - Date.now());
+  return {
+    h: Math.floor(diff / 3600000),
+    m: Math.floor((diff % 3600000) / 60000),
+    s: Math.floor((diff % 60000) / 1000),
+  };
+}
+
 function Countdown({ endsAt }: { endsAt: number }) {
-  const [time, setTime] = useState({ h: 0, m: 0, s: 0 });
+  const [time, setTime] = useState(() => calcTime(endsAt));
 
   useEffect(() => {
-    const calc = () => {
-      const diff = Math.max(0, endsAt - Date.now());
-      return {
-        h: Math.floor(diff / 3600000),
-        m: Math.floor((diff % 3600000) / 60000),
-        s: Math.floor((diff % 60000) / 1000),
-      };
-    };
-    setTime(calc());
-    const i = setInterval(() => setTime(calc()), 1000);
+    const i = setInterval(() => setTime(calcTime(endsAt)), 1000);
     return () => clearInterval(i);
   }, [endsAt]);
 

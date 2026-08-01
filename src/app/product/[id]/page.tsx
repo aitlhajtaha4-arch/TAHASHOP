@@ -23,16 +23,15 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
-  let relatedProducts = allProducts
+  const related = allProducts
     .filter((p) => p.brand === product!.brand && p.id !== product!.id)
     .slice(0, 4);
 
-  if (relatedProducts.length < 4) {
-    const extra = allProducts
-      .filter((p) => p.id !== product!.id && p.brand !== product!.brand && p.category === product!.category)
-      .slice(0, 4 - relatedProducts.length);
-    relatedProducts.push(...extra);
-  }
+  const extra = allProducts
+    .filter((p) => p.id !== product!.id && p.brand !== product!.brand && p.category === product!.category)
+    .slice(0, 4 - related.length);
+
+  const relatedProducts = related.length < 4 ? related.concat(extra) : related;
 
   return <ProductPageClient product={product} relatedProducts={relatedProducts} />;
 }
